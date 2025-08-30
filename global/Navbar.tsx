@@ -4,6 +4,7 @@ import { FloatingDock } from '@/components/ui/floating-dock'
 import { Calendar, Home, LayoutGrid, UserCircle, Users } from 'lucide-react'
 import Searchbar from './Searchbar'
 import Image from 'next/image'
+import { useUser } from '@clerk/nextjs'
 
 const Navbar = () => {
   const navItems = [
@@ -13,6 +14,8 @@ const Navbar = () => {
     { title: "Events", icon: <Calendar />, href: "#" },
     { title: "Profile", icon: <UserCircle />, href: "#" },
   ];
+
+  const { user , isSignedIn } = useUser();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-gray-500/40 
@@ -24,7 +27,7 @@ const Navbar = () => {
       </div>
 
       {/* Left Side */}
-      <div className="flex items-center max-w-md w-full shadow-md">
+      <div className="flex items-center max-w-md w-full shadow-md ml-10 mr-8">
         <Searchbar />
       </div>
 
@@ -37,9 +40,20 @@ const Navbar = () => {
       </div>
 
       {/* Right Side  */}
-      <div className="w-24"></div>
+      <div className="min-w-max ml-2 mr-4 flex items-center">
+
+          {
+            isSignedIn && user && (
+            <div className="min-w-max text-gray-800 font-semibold hidden md:flex items-center">
+              Hi, { user.firstName || user.username ||  "User" } !
+            </div>
+            )
+          }
+
+      </div>
     </nav>
   )
 }
 
 export default Navbar
+
