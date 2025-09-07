@@ -66,10 +66,10 @@ const UserProfilePhoto = ({ src }: { src?: string }) =>
         <img
         src={src}
         alt="User Profile"
-        className="rounded-full w-10 h-10 object-cover"
+        className="rounded-full h-10 w-10 object-cover"
         draggable={false}
         />
-    ) : (
+        ) : (
         <div className="w-10 h-10 rounded-full bg-gray-200" />
     );
 

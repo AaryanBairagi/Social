@@ -72,12 +72,10 @@ const PostDialog = ({ open, setOpen, src, name }: PostDialogProps) => {
             <DialogHeader className="flex justify-start border-b p-4 pb-2">
                 <DialogTitle className="sr-only">Create a New Post</DialogTitle>
                 <div className="flex items-center gap-3">
-                    <Image
-                        src={src || "/default-avatar.png"}
-                        height={40}
-                        width={40}
+                    <img
+                        src={src}
                         alt="User"
-                        className="rounded-full object-cover"
+                        className="rounded-full h-10 w-10 object-cover"
                         draggable={false}
                     />
                     <div>
@@ -101,7 +99,7 @@ const PostDialog = ({ open, setOpen, src, name }: PostDialogProps) => {
             {file && (
                 <div className="relative mt-2 border rounded-lg p-2 max-h-64 overflow-hidden">
                 {file.type.startsWith("image/") ? (
-                <Image
+                <img
                     src={URL.createObjectURL(file)}
                     alt="preview"
                     className="max-h-60 rounded-md object-contain"
