@@ -1,62 +1,5 @@
-// "use client";
-// import React, { useState } from "react";
-// import { Input } from "@/components/ui/input";
-// import { useUser } from "@clerk/nextjs";
-// import  PostDialog  from "./PostDialog";
-// import { Loader } from "lucide-react";
-
-//     const UserProfilePhoto = () => {
-//     const { user } = useUser();
-//     const photoUrl = user?.imageUrl; // User profile photo URL
-
-//     if (!photoUrl) return null;
-
-//     return <img src={photoUrl} alt="User Profile Photo" className="rounded-full w-10 h-10" />;
-// }
-
-
-// const PostInput = () => {
-//     const [open, setOpen] = useState(false);
-//     const [loading, setLoading] = useState(false);
-//     const { user } = useUser();
-
-//     const handleClick = () => {
-//         setLoading(true);
-//         // Simulate async loading delay
-//         setTimeout(() => {
-//             setLoading(false);
-//             setOpen(true);
-//         }, 1000); // adjust delay as needed
-//     };
-
-//   return (
-//     <div className="bg-white p-4 m-2 md:m-0 border border-gray-300 rounded-md drop-shadow-lg">
-//         <div className="flex items-center gap-3">
-//         {/* Added user photo here */}
-//         {UserProfilePhoto()}
-//         <Input
-//             type="text"
-//             onClick={handleClick}
-//             placeholder="Create a Post"
-//             className="bg-gray-100 hover:bg-gray-200 text-gray-600"
-//             />
-//         {loading ? (
-//             <div className="flex items-center justify-center w-16 h-16">
-//                 <Loader className="animate-spin rounded-full h-6 w-6 border-t-2 border-cyan-500 border-solid" />
-//             </div>
-//             ) : (
-//             <PostDialog open={open} setOpen={setOpen} src={user?.imageUrl} />
-//         )}
-
-//         </div>
-//     </div>
-//     );
-// };
-
-// export default PostInput;
-
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@clerk/nextjs";
 import PostDialog from "./PostDialog";
@@ -77,6 +20,27 @@ const PostInput = () => {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const { user } = useUser();
+    const [currentUserId , setCurrentUserId] = React.useState<string>("");
+
+    useEffect(() => {
+        if (!user) return;
+
+    const fetchUserId = async () => {
+        try {
+            const res = await fetch(`/api/user/profile?clerkId=${user.id}`);
+            if (res.ok) {
+            const data = await res.json();
+            if (data?._id) {
+            setCurrentUserId(data._id); // Save MongoDB ObjectId for posts
+            }
+        }
+        } catch (error) {
+            console.error("Error fetching user profile:", error);
+        }
+        };
+        fetchUserId();
+    }, [user]);
+
 
     const handleClick = () => {
         setLoading(true);
@@ -125,7 +89,7 @@ const PostInput = () => {
             </svg>
         </div>
         )}
-        <PostDialog open={open} setOpen={setOpen} src={user?.imageUrl} name={user?.fullName || user?.username || ""} />
+        <PostDialog open={open} setOpen={setOpen} src={user?.imageUrl} name={user?.fullName || user?.username || ""} currentUserId={currentUserId} />
         </div>
     </div>
   );
