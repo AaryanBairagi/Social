@@ -4,16 +4,16 @@ let isConnected:Connection | boolean = false; //initially isConnected is false s
 
 export const connectDB = async()=>{
     if(isConnected){
-        console.log("DataBase is already Connected");
+        console.log("MongoDB is already Connected");
         return isConnected;
     }
     try{
         const res = await mongoose.connect(process.env.MONGO_URI!);
         isConnected = res.connection;
-        console.log("DataBase Connected Successfully");
+        console.log("MongoDB Connected Successfully");
         return isConnected;
     }catch(error){
-        console.log("Error Connecting to DataBase");
+        console.log("Error Connecting to MongoDB");
         console.error(error);
     }
 }

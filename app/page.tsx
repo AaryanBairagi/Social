@@ -44,6 +44,16 @@ export default function LandingPage() {
     }
   }
 
+  const handleLogin = ()=>{
+    if(!isLoaded) return;
+
+    if(isSignedIn){
+      router.push("/dashboard");
+    }else{
+      router.push("/sign-in");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#EAF9FF] to-[#CFFAFE] flex flex-col">
       {/* Navigation */}
@@ -61,12 +71,6 @@ export default function LandingPage() {
               <span className="text-2xl font-bold text-black/90 tracking-wide drop-shadow-lg">ModNect</span>
             </div>
             <div className="flex items-center space-x-6 text-cyan-600">
-              <Link href="/about" passHref>
-                <button className="group relative flex items-center gap-2 px-4 py-2 rounded-xl border border-cyan-300 hover:border-cyan-500 hover:shadow-[0_0_12px_#22d3ee] focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white group-hover:drop-shadow-lg">
-                  <InfoIcon className="w-5 h-5 transition-all group-hover:text-cyan-400 group-hover:scale-110" />
-                  Learn More
-                </button>
-              </Link>
               <Link href="/features" passHref>
                 <button className="group relative flex items-center gap-2 px-4 py-2 rounded-xl border border-cyan-300 hover:border-cyan-500 hover:shadow-[0_0_12px_#22d3ee] focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white group-hover:drop-shadow-lg">
                   <LayoutGrid className="w-5 h-5 transition-all group-hover:text-cyan-400 group-hover:scale-110" />
@@ -79,12 +83,10 @@ export default function LandingPage() {
                   Contact Us
                 </button>
               </Link>
-              <Link href="/sign-in" passHref className="ml-10">
-                <button className="group flex items-center gap-2 px-6 py-2 rounded-xl bg-cyan-500 text-white shadow-md hover:bg-cyan-600 hover:shadow-[0_0_15px_#22d3ee] focus:outline-none focus:ring-4 focus:ring-cyan-400 transition transform hover:scale-105">
+              <Button onClick={handleLogin} className="group flex items-center gap-2 px-6 py-2 rounded-xl bg-cyan-500 text-white shadow-md hover:bg-cyan-600 hover:shadow-[0_0_15px_#22d3ee] focus:outline-none focus:ring-4 focus:ring-cyan-400 transition transform hover:scale-105">
+                Login
                   <LogIn className="w-5 h-5 transition-all group-hover:text-cyan-200 group-hover:scale-110" />
-                  Login
-                </button>
-              </Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -105,11 +107,17 @@ export default function LandingPage() {
             Collaborate on projects, find study groups, and unlock campus opportunities.   Discover new learning avenues, participate in campus events, and grow your skills
             with the support of a vibrant student community.
           </p>
-          <div className="flex justify-center">
+          <div className="flex items-center gap-4 justify-center">
               <Button onClick={handleGetStarted} className="group px-8 py-5 text-lg bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-xl shadow-lg transition-all hover:scale-105 hover:shadow-[0_0_15px_#22d3ee] flex items-center gap-2 drop-shadow-lg">
                 Get Started
-                <ArrowRight className="transition-all group-hover:translate-x-1 group-hover:text-cyan-200" />
+                <ArrowRight className="transition-all group-hover:translate scale-105 group-hover:text-cyan-200" />
               </Button>
+              <Link href="/learn-more" passHref>
+                <button className="group relative flex items-center gap-2 px-4 py-2 rounded-xl border border-cyan-300 hover:border-cyan-500 hover:shadow-[0_0_12px_#22d3ee] focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-black text-white hover:scale-105 group-hover:drop-shadow-lg">
+                  <InfoIcon className="w-5 h-5 transition-all group-hover:text-cyan-400 group-hover:scale-105" />
+                  Learn More
+                </button>
+              </Link>
           </div>
         </div>
 
@@ -162,13 +170,14 @@ export default function LandingPage() {
           <Link href="mailto:aaryanbairagi11@gmail.com" passHref>
             <Button className="group mx-auto px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl shadow-lg transition-transform hover:scale-105 hover:shadow-[0_0_15px_#22d3ee] flex items-center gap-2 drop-shadow-lg">
               Email Support
-              <Mail className="transition-all group-hover:translate-x-1 group-hover:text-cyan-200" />
+              <Mail className="transition-all group-hover:translate scale-105 group-hover:text-cyan-200" />
             </Button>
           </Link>
         </section>
       </main>
       
       <hr className="border-black/20 my-4" />
+
       {/* Bottom Footer */}
       <footer className="w-full text-center py-6 mb-4 text-gray-500 text-sm drop-shadow-sm">
         &copy; {new Date().getFullYear()} ModNect. All Rights Reserved.
