@@ -58,7 +58,7 @@ const PostInput = () => {
             <Input
             type="text"
             onClick={handleClick}
-            placeholder="Create a Post"
+            placeholder="What's on your mind today? Create a Post."
             disabled={loading}
             className={`bg-gray-100 hover:bg-gray-200 text-gray-600  transition-opacity transition-colors duration-200 ${
             loading ? "opacity-60 pointer-events-none" : ""
@@ -89,7 +89,7 @@ const PostInput = () => {
             </svg>
         </div>
         )}
-        <PostDialog open={open} setOpen={setOpen} src={user?.imageUrl} name={user?.fullName || user?.username || ""} currentUserId={currentUserId} />
+        <PostDialog mode={"create"} open={open} setOpen={setOpen} src={user?.imageUrl} name={user?.fullName || user?.username || ""} currentUserId={currentUserId} />
         </div>
     </div>
   );

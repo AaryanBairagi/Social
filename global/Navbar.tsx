@@ -5,6 +5,7 @@ import { Calendar, Home, LayoutGrid, UserCircle, Users } from 'lucide-react'
 import Searchbar from './Searchbar'
 import Image from 'next/image'
 import { useUser } from '@clerk/nextjs'
+import Link from 'next/link'
 
 const Navbar = () => {
   const navItems = [
@@ -23,7 +24,7 @@ const Navbar = () => {
       {/* Logo + BrandName */}
       <div className="flex items-center gap-2 min-w-max ml-2">
         <Image src="/ModNectLogo.png" alt="logo" width={32} height={32} />
-        <span className='font-bold text-gray-800 text-xl'>ModNect</span>
+        <span className='font-bold text-gray-800 text-xl'><Link href="/">ModNect</Link></span>
       </div>
 
       {/* Left Side */}
