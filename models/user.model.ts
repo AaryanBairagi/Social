@@ -20,6 +20,9 @@ export interface IUser {
   };
   isVerified?: boolean;
   password?: string;
+  connections?:string[];
+  sentRequests?:string[];
+  receivedRequests?:string[];
 }
 
 export interface IUserDocument extends IUser, mongoose.Document {
@@ -43,6 +46,9 @@ const userSchema = new mongoose.Schema(
     interests: [String],
     socialLinks: { linkedin: String, github: String, twitter: String, instagram: String },
     isVerified: { type: Boolean, default: false },
+    connections:[{ type:mongoose.Schema.Types.ObjectId , ref:"User"}],
+    sentRequests:[{ type:mongoose.Schema.Types.ObjectId , ref:"User" }],
+    receivedRequests:[{ type:mongoose.Schema.Types.ObjectId , ref:"User"}]
   },
   { timestamps: true,
     collection:"User"
