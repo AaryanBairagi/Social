@@ -11,7 +11,7 @@ const Navbar = () => {
   const navItems = [
     { title: "Home" , icon: <Home/> , href:"/dashboard"},
     { title: "Posts", icon: <LayoutGrid />, href: "#" },
-    { title: "Connections", icon: <Users />, href: "#" },
+    { title: "Connections", icon: <Users />, href: "/dashboard/connections" },
     { title: "Events", icon: <Calendar />, href: "/dashboard/events" },
     { title: "Profile", icon: <UserCircle />, href: "/dashboard/profile" },
   ];
