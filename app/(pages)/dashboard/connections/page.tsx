@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserPlus } from "lucide-react";
+import { Users, UserCheck, UserPlus } from "lucide-react";
 
 type ConnectionUser = {
   _id: string;
@@ -104,14 +104,16 @@ export default function ConnectionsPage() {
           <TabsList className="w-full flex justify-center gap-8 mb-0 bg-white/70 shadow-none border-b border-cyan-200">
             <TabsTrigger
               value="followers"
-              className="font-bold text-lg p-4 border-b-2 data-[state=active]:border-cyan-500 data-[state=active]:text-cyan-700 data-[state=inactive]:text-gray-400 transition tracking-wide"
+              className="font-bold text-lg p-4 border-b-2 data-[state=active]:border-cyan-500 data-[state=active]:text-cyan-700 data-[state=inactive]:text-gray-400 transition tracking-wide flex items-center gap-2"
             >
+              <Users className="w-5 h-5" />
               Followers ({followers.length})
             </TabsTrigger>
             <TabsTrigger
               value="following"
-              className="font-bold text-lg p-4 border-b-2 data-[state=active]:border-cyan-500 data-[state=active]:text-cyan-700 data-[state=inactive]:text-gray-400 transition tracking-wide"
+              className="font-bold text-lg p-4 border-b-2 data-[state=active]:border-cyan-500 data-[state=active]:text-cyan-700 data-[state=inactive]:text-gray-400 transition tracking-wide flex items-center gap-2"
             >
+              <UserCheck className="w-5 h-5" />
               Following ({following.length})
             </TabsTrigger>
           </TabsList>
