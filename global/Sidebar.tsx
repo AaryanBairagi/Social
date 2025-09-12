@@ -22,11 +22,11 @@ export function SideBar() {
   const { user } = useUser();
 
   const navItems = [
-    { name: "Notes", icon: FileText, href: "/notes" },
+    { name: "Notes", icon: FileText, href: "/dashboard/notes" },
     { name: "Materials", icon: GraduationCap, href: "/study-materials" },
     { name: "Messages", icon: MessageCircle, href: "/messages" },
     { name: "Achievements", icon: Award, href: "/achievements" },
-    { name: "Settings", icon: Cog, href: "/settings" },
+    { name: "Settings", icon: Cog, href: "dashboard/settings" },
     { name: "Support", icon: LifeBuoy, href: "/support" },
   ];
 

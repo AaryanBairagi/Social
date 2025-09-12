@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Trash2, Edit, Heart, MessageCircle, SendIcon } from "lucide-react";
+import { Trash2, Edit, Heart, MessageCircle, SendIcon, FileIcon } from "lucide-react";
 import PostDialog from "./PostDialog";
 import { IconHeartFilled } from "@tabler/icons-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -149,7 +149,7 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
 
   return (
     <>
-      <div className="space-y-6 max-w-3xl mx-auto px-4">
+      <div className="space-y-6 max-w-3xl mx-auto px-4 mt-2">
         {posts.map(post => {
           const isOwner = post.user?._id && currentUserId
             ? post.user._id.toString() === currentUserId.toString()
@@ -169,7 +169,8 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
               onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 0 24px 4px #22d3ee,0 8px 24px 0 rgba(6,182,212,0.13)")}
               onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 1.5px 16px 0 rgba(6,182,212,0.12),0 2.5px 8px 0 rgba(6,182,212,0.04)")}
             >
-              <div className="flex items-center gap-4 mb-3">
+              {/* <div className="flex items-center gap-4 mb-3">
+
                 <div className="w-12 h-12 bg-cyan-200 rounded-full flex items-center justify-center font-bold text-cyan-700 select-none">
                   {post.user.firstName?.[0] || post.user.userId?.[0] || "U"}
                 </div>
@@ -178,12 +179,55 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
                   <p className="text-sm text-gray-500">@{post.user.userId}</p>
                   <p className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleString()}</p>
                 </div>
+              </div> */}
+
+
+              <div className="flex items-center gap-4 mb-3">
+                {post.user.profilePhoto ? (
+                  // Use your own uploaded profile photo URL:
+                <img
+                src={post.user.profilePhoto}
+                alt={`${post.user.firstName} ${post.user.lastName}`}
+                className="w-12 h-12 rounded-full object-cover border border-cyan-200"
+                width={48}
+                height={48}
+                loading="lazy"
+                />
+              ) : (
+                // Fallback: circle with initial first letter if no photo
+                <div className="w-12 h-12 bg-cyan-200 rounded-full flex items-center justify-center font-bold text-cyan-700 select-none">
+                  {post.user.firstName?.[0] || post.user.userId?.[0] || "U"}
+                </div>
+                )}
+                <div>
+                  <p className="font-semibold text-gray-900">{post.user.firstName} {post.user.lastName}</p>
+                  <p className="text-sm text-gray-500">@{post.user.userId}</p>
+                  <p className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleString()}</p>
+                </div>
               </div>
+
 
               <p className="text-gray-800 whitespace-pre-wrap">{post.description}</p>
               {post.imageUrl && (
+                post.imageUrl.match(/\.(jpeg|jpg|png|gif|bmp|webp)$/i) ? (
                 <img src={post.imageUrl} alt="Post media" className="mt-4 rounded-lg max-h-80 w-full object-cover" />
+                ) : (
+                <div className="mt-4 flex items-center gap-2 bg-cyan-50 border border-cyan-200 p-3 rounded">
+                  <FileIcon className="w-6 h-6 text-cyan-600" />
+                    <a
+                      href={post.imageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-cyan-700 underline font-medium"
+                      download
+                      >
+                      Download&nbsp;
+                      {post.imageUrl.split("/").pop()?.slice(0, 40) || "file"}
+                    </a>
+                </div>
+                )
               )}
+
 
               <div className="mt-4 flex items-center space-x-6 text-gray-600 text-base">
                 <button
@@ -261,26 +305,6 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
                         <Skeleton className="w-full h-full rounded-md bg-gray-300/70 animate-pulse" />
                       </div>
                     )}
-
-                    {/* {commentState.loading && <span className="text-xs text-cyan-600">
-                      <svg
-                      className="animate-spin h-6 w-6 text-cyan-500"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                      </svg>
-                      </span>} */}
                     {commentState.error && <span className="text-xs text-red-600">{commentState.error}</span>}
                     {(commentState.comments ?? []).map((comment, idx) => (
                       <div key={comment && comment._id ? String(comment._id) : `comment-${idx}`} className="text-sm break-words">

@@ -1,8 +1,9 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { Button } from "../../../../components/ui/button";
+import { uploadFileToCloudinary } from "@/lib/uploadCloudinary";
 
 export default function UserProfilePage() {
   const { user: clerkUser, isLoaded, isSignedIn } = useUser();
@@ -13,7 +14,7 @@ export default function UserProfilePage() {
         lastName: clerkUser.lastName || "",
         userId: clerkUser.username || "",
         email: clerkUser.emailAddresses[0]?.emailAddress || "",
-        profilePhoto: clerkUser.imageUrl || "/default-avatar.png",
+        profilePhoto: "", // no Clerk image, start empty
         bio: "",
         college: "",
         year: undefined,
@@ -26,7 +27,7 @@ export default function UserProfilePage() {
         lastName: "",
         userId: "",
         email: "",
-        profilePhoto: "/default-avatar.png",
+        profilePhoto: "", // no default avatar
         bio: "",
         college: "",
         year: undefined,
@@ -52,18 +53,20 @@ export default function UserProfilePage() {
         if (res.status === 404) {
           console.log("No user found in DB, using empty base profile");
           setUser(baseProfile);
-          setPreview(baseProfile.profilePhoto);
+          setPreview("");
           setLoading(false);
           return null;
         }
         const data = await res.json();
         console.log("Fetched user from DB:", data);
         setUser(data);
-        setPreview(data.profilePhoto || "/default-avatar.png");
+        setPreview(data.profilePhoto || "");
         setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching user profile:", err);
+        setUser(baseProfile);
+        setPreview("");
         setLoading(false);
       });
   }, [isLoaded, isSignedIn, clerkUser]);
@@ -75,9 +78,7 @@ export default function UserProfilePage() {
     setPreview(URL.createObjectURL(file));
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (!user) return;
     const { name, value } = e.target;
     if (name.startsWith("socialLinks.")) {
@@ -91,10 +92,7 @@ export default function UserProfilePage() {
     }
   };
 
-  const handleInterestChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    idx: number
-  ) => {
+  const handleInterestChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const interests = [...(user?.interests || [])];
     interests[idx] = e.target.value;
     setUser((prev: any) => ({ ...prev, interests }));
@@ -113,9 +111,16 @@ export default function UserProfilePage() {
 
     setSaving(true);
 
-    const profilePhoto = user.profilePhoto;
+    let profilePhoto = user.profilePhoto;
+
     if (imageFile) {
-      // TODO: implement image upload here, then update profilePhoto with returned URL
+      try {
+        profilePhoto = await uploadFileToCloudinary(imageFile);
+      } catch (uploadErr) {
+        alert("Failed to upload profile photo. Please try again.");
+        setSaving(false);
+        return;
+      }
     }
 
     const clerkId = clerkUser.id;
@@ -135,6 +140,8 @@ export default function UserProfilePage() {
       if (res.ok) {
         const savedUser = await res.json();
         setUser(savedUser);
+        setPreview(savedUser.profilePhoto || "");
+        setImageFile(null);
         alert("Profile saved successfully!");
       } else {
         const errorData = await res.json();
@@ -180,13 +187,17 @@ export default function UserProfilePage() {
       <div className="bg-white shadow-md rounded-xl p-8 border border-gray-100 mb-8">
         <div className="flex items-center gap-6">
           <label htmlFor="profile-photo" className="relative group cursor-pointer">
-            <Image
-              src={"/User-Prof.png"}
-              width={60}
-              height={60}
-              className="rounded-full object-cover border-4 border-cyan-100 group-hover:brightness-75 transition"
-              alt="Profile Photo"
-            />
+            {preview ? (
+              <img
+                src={preview}
+                alt="Profile Photo"
+                width={60}
+                height={60}
+                className="rounded-full object-cover border-4 border-cyan-100 group-hover:brightness-75 transition"
+              />
+            ) : (
+              <div className="w-15 h-15 rounded-full bg-gray-300 border-4 border-cyan-100" />
+            )}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 px-2 py-1 text-xs bg-cyan-600 text-white rounded opacity-80 group-hover:opacity-100 transition">
               Change
             </div>
@@ -196,6 +207,7 @@ export default function UserProfilePage() {
               accept="image/*"
               className="hidden"
               onChange={handleImagePick}
+              disabled={saving}
             />
           </label>
           <div>
@@ -207,14 +219,10 @@ export default function UserProfilePage() {
         </div>
       </div>
 
-      <form
-        onSubmit={handleSave}
-        className="bg-white rounded-xl shadow-md p-8 border border-gray-100 flex flex-col gap-8"
-      >
+      <form onSubmit={handleSave} className="bg-white rounded-xl shadow-md p-8 border border-gray-100 flex flex-col gap-8">
         <div>
           <h3 className="text-lg font-semibold text-cyan-700 mb-4">User Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Inputs with cyan focused border */}
             <div>
               <label className="block mb-1 font-medium">First Name</label>
               <input
@@ -410,9 +418,4 @@ export default function UserProfilePage() {
     </div>
   );
 }
-
-
-
-
-
 

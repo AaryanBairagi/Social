@@ -29,8 +29,8 @@ const Feed  = () => {
     
   return (
     <div className='flex flex-col gap-4'>
-        <PostInput />
-        <Posts currentUserId={currentUserId} />
+      <PostInput />  
+      <Posts currentUserId={currentUserId} />
     </div>
   )
 }
