@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
+import { SignOutButton, useUser } from "@clerk/nextjs";
 import { Button } from "../../../../components/ui/button";
 import { uploadFileToCloudinary } from "@/lib/uploadCloudinary";
+import { Trash , Save } from "lucide-react";
 
 export default function UserProfilePage() {
   const { user: clerkUser, isLoaded, isSignedIn } = useUser();
@@ -397,12 +398,25 @@ export default function UserProfilePage() {
             </div>
           </div>
         </div>
+        
+        <div className="flex items-center justify-end gap-2 flex-row">
+        <div className="flex justify-end mb-2">
+          <SignOutButton>
+            <Button
+            variant="outline"
+            className="border-black bg-red-500 px-6 py-2 shadow hover:shadow-cyan-200 transition text-white hover:bg-red-50 hover:border-red-600 font-semibold">
+              Sign Out
+              <span><Trash className="w-5 h-5"/></span>
+            </Button>
+          </SignOutButton>
+        </div>
 
-        <div className="flex justify-end">
+
+        <div className="flex justify-end mb-2">
           <Button
             type="submit"
             disabled={saving}
-            className="bg-cyan-600 hover:bg-cyan-700 px-8 py-2 text-lg rounded-full shadow hover:shadow-cyan-200 transition"
+            className="bg-cyan-600 hover:bg-cyan-700 px-6 py-2 border-cyan-900 rounded-md shadow hover:shadow-cyan-200 transition"
           >
             {saving ? (
               <div className="flex items-center space-x-1">
@@ -410,10 +424,15 @@ export default function UserProfilePage() {
                 <span>Saving...</span>
               </div>
             ) : (
-              "Save Profile"
+              <div className="flex items-center justify-center">
+                <p>Save Profile</p>
+                <span><Save className="w-5 h-5 ml-1" /></span>
+              </div>
             )}
           </Button>
         </div>
+        
+      </div>
       </form>
     </div>
   );

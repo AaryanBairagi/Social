@@ -77,7 +77,7 @@ export default function LandingPage() {
                   Features
                 </button>
               </Link>
-              <Link href="/contact" passHref>
+              <Link href="/contact-us" passHref>
                 <button className="group relative flex items-center gap-2 px-4 py-2 rounded-xl border border-cyan-300 hover:border-cyan-500 hover:shadow-[0_0_12px_#22d3ee] focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white group-hover:drop-shadow-lg">
                   <Headset className="w-5 h-5 transition-all group-hover:text-cyan-400 group-hover:scale-110" />
                   Contact Us

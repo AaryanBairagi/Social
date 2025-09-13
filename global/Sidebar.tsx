@@ -47,7 +47,7 @@ export function SideBar() {
     { name: "Messages", icon: MessageCircle, href: "/dashboard/messages" },
     { name: "Achievements", icon: Award, href: "/achievements" },
     { name: "Settings", icon: Cog, href: "/dashboard/settings" },
-    { name: "Support", icon: LifeBuoy, href: "/support" },
+    { name: "Support", icon: LifeBuoy, href: "/contact-us" },
   ];
 
   return (
@@ -100,7 +100,7 @@ export function SideBar() {
                   aria-label="Profile"
                   onClick={() => router.push("/dashboard/profile")}
                   className={cn(
-                    "w-12 h-12 p-1 rounded-full overflow-hidden border-2 border-gray-700 shadow-lg mx-auto transition-all duration-200",
+                    "w-12 h-12 rounded-md overflow-hidden border-2 border-gray-700 shadow-lg mx-auto transition-all duration-200",
                     pathname === "/dashboard/profile" ? "ring-2 ring-cyan-400" : "ring-0",
                     "hover:ring-2 hover:ring-cyan-300 hover:shadow-cyan-500"
                   )}
@@ -109,7 +109,7 @@ export function SideBar() {
                     <img
                       src={profilePhoto}
                       alt={user.firstName || user.username || "User"}
-                      className="w-full h-full"
+                      className="w-full h-full object-cover"
                       draggable={false}
                     />
                   ) : (
