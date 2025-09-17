@@ -1,9 +1,18 @@
 import { Input } from '@/components/ui/input'
 import { Search } from 'lucide-react'
-import React , {useState} from 'react'
+import React , {useState , useEffect} from 'react'
 
-const Searchbar = () => {
+const Searchbar = ({onSearch}:{onSearch : (query:string)=> void}) => {
     const [isFocused,setIsfocused] = useState(false);
+    const [input,setInput] = useState('');
+
+    useEffect(()=>{
+        const handler = setTimeout(()=>{
+            onSearch(input.trim())
+        },300);
+        return ()=> clearTimeout(handler);
+    },[input,onSearch])
+
     return (
     <div className="
         flex items-center gap-3 
@@ -19,7 +28,8 @@ const Searchbar = () => {
             className="bg-transparent border-none focus:ring-0 
             text-gray-900 dark:text-gray-100 
             placeholder-gray-400 dark:placeholder-gray-500"
-
+            value={input}
+            onChange={event=>setInput(event.target.value)}
             onFocus={()=>setIsfocused(true)}
             onBlur={()=>setIsfocused(false)}
         />
