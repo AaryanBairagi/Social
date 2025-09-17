@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button"; // shadcn/ui
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import Layout from "../../dashboard/layout";
 
 interface UserProfile {
   userId: string;
@@ -104,6 +105,7 @@ export default function UserProfilePage() {
 
   // Profile
   return (
+    <Layout>
     <div className="flex justify-center py-10">
       <Card className="max-w-lg w-full rounded-2xl shadow-lg p-6">
         <CardContent className="flex flex-col items-center gap-4">
@@ -146,5 +148,6 @@ export default function UserProfilePage() {
         </CardContent>
       </Card>
     </div>
+    </Layout>
   );
 }
