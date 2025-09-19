@@ -206,7 +206,7 @@ const fetchConnectionData = useCallback(async () => {
 );
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-cyan-100 to-blue-100 flex justify-center py-10 px-5">
+    <main className="min-h-screen bg-gradient-to-br from-cyan-100 to-blue-100 flex justify-center py-10 px-5 rounded-md">
       <section className="max-w-6xl w-full">
         {profileLoading ? (
           <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow flex justify-center">

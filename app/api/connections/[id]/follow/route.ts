@@ -21,6 +21,11 @@ export async function POST(req: NextRequest, context: { params: { id: string } }
 
     if (!sender || !receiver) return NextResponse.json({ message: "User(s) not found" }, { status: 404 });
 
+    //Cannot follow yourself
+    if (sender._id.toString() === receiver._id.toString()) {
+      return NextResponse.json({ message: "Cannot follow yourself" }, { status: 400 });
+    }
+
     sender.connections = sender.connections || []
 
     if (sender.connections.includes(receiver._id)) 
