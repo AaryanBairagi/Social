@@ -233,24 +233,35 @@ const fetchConnectionData = useCallback(async () => {
 
         <Tabs defaultValue="followers" className="mt-8 bg-white rounded shadow">
           <TabsList className="border-b border-cyan-300 flex justify-center gap-8 px-8">
+            
+            
             <TabsTrigger
               value="followers"
               className="flex items-center space-x-2 font-semibold text-lg px-4 py-3 data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-700"
             >
               <Users size={20} /> <span>Followers ({followers.length})</span>
             </TabsTrigger>
+
+
             <TabsTrigger
               value="following"
               className="flex items-center space-x-2 font-semibold text-lg px-4 py-3 data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-700"
             >
               <UserCheck size={20} /> <span>Following ({following.length})</span>
             </TabsTrigger>
+
+
             <TabsTrigger
               value="discover"
               className="flex items-center space-x-2 font-semibold text-lg px-4 py-3 data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-gray-400"
             >
               <Search size={20} /> <span>Discover</span>
             </TabsTrigger>
+
+            <TabsTrigger value="requests" className="flex items-center space-x-2 font-semibold text-lg px-4 py-3 data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-700">
+                <Users size={20} /> <span>Requests ({receivedRequests.length})</span>
+            </TabsTrigger>
+
           </TabsList>
 
           <TabsContent
@@ -270,7 +281,7 @@ const fetchConnectionData = useCallback(async () => {
                 <UserCard
                   key={user._id}
                   user={user}
-                  refreshConnections={refreshConnections}
+                  refresh={refreshConnections}
                 />
               ))
             )}
@@ -293,7 +304,7 @@ const fetchConnectionData = useCallback(async () => {
                 <UserCard
                   key={user._id}
                   user={user}
-                  refreshConnections={refreshConnections}
+                  refresh={refreshConnections}
                 />
               ))
             )}
@@ -316,11 +327,44 @@ const fetchConnectionData = useCallback(async () => {
                 <UserCard
                   key={user._id}
                   user={user}
-                  refreshConnections={refreshConnections}
+                  refresh={refreshConnections}
                 />
               ))
             )}
           </TabsContent>
+
+          <TabsContent 
+            value="requests" 
+            className="p-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            { loading === "followers" ? (
+              [...Array(placeholderCount)].map((_,i) => (
+                <Skeleton key={i} className="h-48 rounded-lg" />
+              ))
+            ) : receivedRequests.length===0 ? (
+              <p className="text-center col-span-full text-gray-500 py-16">
+                No pending follow requests.
+              </p>
+            ) : (
+              receivedRequests.map((userId) => {
+                const user = followers.find(f => f._id === userId) || following.find(f=> f._id === userId) || discoverUsers.find(d => d._id === userId);
+                if(!user) return null;
+
+                return(
+                  <UserCard 
+                    key={user._id}
+                    user={{ 
+                        ...user,
+                        isFollowedByUser: true,
+                        hasSentRequest: false,   
+                        hasReceivedRequest: true,
+                    }}
+                    refresh={refreshConnections}
+                  />
+                )
+              })
+            )}
+          </TabsContent>
+
         </Tabs>
       </section>
     </main>
