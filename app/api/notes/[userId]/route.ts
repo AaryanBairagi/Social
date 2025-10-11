@@ -9,12 +9,10 @@ export async function GET(req:NextRequest , context:{ params: Promise<{userId:st
     await connectDB();
     const params = await context.params;
     const clerkId = params.userId;
-    console.log(clerkId);
 
     if(!clerkId) return NextResponse.json({message:"Unauthorized User"},{status:400});
     
-    const appUser = await User.findOne({ clerkUserId : clerkId });
-    console.log(appUser);
+    const appUser = await User.findOne({ clerkId : clerkId });
     if(!appUser) return NextResponse.json({error: "User Not Found"} , {status:400});
         
     const notes = await Note.find({ user: appUser._id }).sort({ createdAt: -1 }).lean();
