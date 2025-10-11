@@ -4,6 +4,7 @@ export interface INote{
     description:string;
     user: mongoose.Types.ObjectId;
     fileUrl:string;
+    folder:string;
 }
 
 export interface INoteDocument extends INote , Document{
@@ -24,8 +25,12 @@ const noteSchema = new mongoose.Schema({
     fileUrl:{
         type:String,
         required:true
-    }
+    },
 
+    folder:{
+        type:String,
+        default:null
+    }
 },
     {timestamps:true,collection:"Note"}
 );

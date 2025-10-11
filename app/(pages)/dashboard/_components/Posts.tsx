@@ -4,6 +4,17 @@ import { Trash2, Edit, Heart, MessageCircle, SendIcon, FileIcon } from "lucide-r
 import PostDialog from "./PostDialog";
 import { IconHeartFilled } from "@tabler/icons-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
+
 
 // ---------- Types ----------
 type CommentObj = {
@@ -40,6 +51,12 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
   const [commentsByPost, setCommentsByPost] = useState<{
     [postId: string]: { loading: boolean; error: string | null; comments: CommentObj[] }
   }>({});
+
+  //save to notes
+  const [saveToNotes , SetSaveToNotes] = useState(false);
+  const [folderName , SetFolderName] = useState("");
+  const [fileDescription , SetFileDescription] = useState("");
+  const [selectedFileUrl , SetSelectedFileUrl] = useState("");
 
   // Fetch all posts - comments are only IDs here!
   const fetchPosts = async () => {
@@ -135,6 +152,25 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
     }
   };
 
+  const handleAddToNotes = async() => {
+    if(!selectedFileUrl) return;
+    await fetch(`/api/notes/${currentUserId}` , {
+      method : "POST",
+      headers: {"Content-Type" : "application/json"},
+      body: JSON.stringify({
+        fileUrl : selectedFileUrl , 
+        description : fileDescription ,
+        folder : folderName ,
+        createdAt : new Date().toISOString()
+      })
+    });
+    SetSelectedFileUrl("");
+    SetFileDescription("");
+    SetFolderName("");
+    SetSaveToNotes(false);
+  }
+
+
   // Show posts
   if (loading) {
     return (
@@ -220,6 +256,14 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
                       rel="noopener noreferrer"
                       className="text-cyan-700 underline font-medium"
                       download
+                      onClick={e=>{
+                          e.preventDefault();
+                          SetSelectedFileUrl(post.imageUrl);
+                          SetFileDescription(post.description || "Downloaded File");
+                          SetSaveToNotes(true);
+                          window.open(post.imageUrl , "_blank");
+                        }
+                      }
                       >
                       Download&nbsp;
                       {post.imageUrl.split("/").pop()?.slice(0, 40) || "file"}
@@ -318,6 +362,7 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
                       </div>
                     ))}
                   </div>
+
                   {/* COMMENT INPUT */}
                   <div className="flex gap-2 mt-auto">
                     <input
@@ -365,6 +410,31 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
         postIdToEdit={postToEdit?._id ?? ""}
         onSave={() => fetchPosts()}
       />
+
+      {/* Add the Notes Dialog */}
+      <AlertDialog open={saveToNotes} onOpenChange={SetSaveToNotes}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Save this file to Notes ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Save this file to your notes ! Enter the folder name (optional) : 
+            </AlertDialogDescription>
+            <input 
+              value={folderName} 
+              onChange={e=> SetFolderName(e.target.value)}
+              placeholder="Enter the folder name" 
+              className="border px-2 py-1 rounded mt-2 w-full"  />
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => SetSaveToNotes(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleAddToNotes}>
+              Add to Notes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

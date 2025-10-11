@@ -63,13 +63,13 @@ export default function ChatWindow({ currentUserId, receiver }: any) {
   return (
     <div className="flex flex-col flex-1 h-full pb-3">
       {/* <header className="flex items-center gap-2 py-5 px-5 border-b border-cyan-100 bg-cyan-500 font-bold text-lg"> */}
-      <header className="flex items-center gap-2 py-5 px-5 border-b border-cyan-100 bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 text-white font-bold text-lg shadow-md">
+      <header className="flex items-center gap-2 py-5 px-5 border-b border-cyan-200 bg-cyan-600 text-white font-bold text-lg shadow">
         <img
           src={receiver.profilePhoto || "/default-avatar.png"}
           className="w-10 h-10 rounded-full border-2 border-cyan-300"
         />
         <span>{receiver.firstName} {receiver.lastName}</span>
-        <span className="ml-2 text-xs font-normal text-cyan-800">@{receiver.userId}</span>
+        <span className="ml-2 text-lg font-bold text-white/60">@{receiver.userId}</span>
       </header>
       <div className="flex-1 overflow-y-auto p-5 bg-white/60">
         {messages.map((m, i) => (

@@ -1,16 +1,23 @@
 import { connectDB } from "@/lib/db";
 import { Note } from "@/models/notes.model";
 import { NextRequest , NextResponse } from "next/server";
+import mongoose from "mongoose";
+import { User } from "@/models/user.model";
 
 export async function GET(req:NextRequest , context:{ params: Promise<{userId:string}> }){
     try{
     await connectDB();
     const params = await context.params;
-    const userId = params.userId;
+    const clerkId = params.userId;
+    console.log(clerkId);
 
-    if(!userId) return NextResponse.json({message:"Unauthorized User"},{status:400});
-
-    const notes = await Note.find({userId},{createdAt:-1}).lean();
+    if(!clerkId) return NextResponse.json({message:"Unauthorized User"},{status:400});
+    
+    const appUser = await User.findOne({ clerkUserId : clerkId });
+    console.log(appUser);
+    if(!appUser) return NextResponse.json({error: "User Not Found"} , {status:400});
+        
+    const notes = await Note.find({ user: appUser._id }).sort({ createdAt: -1 }).lean();
 
     return NextResponse.json(notes,{status:200});
 
@@ -25,16 +32,19 @@ export async function POST(req:NextRequest , context:{ params:Promise<{userId:st
     try{
         await connectDB();
         const data = await req.json();
-        const { fileUrl, description, createdAt } = data;
+        const { fileUrl, description, createdAt, folder } = data;
 
         const params = await context.params;
         const userId = params.userId;
-        if(!userId) return NextResponse.json({message:"Unauthoruzed User"},{status:400});
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+
+        if(!userId) return NextResponse.json({message:"Unauthorized User"},{status:400});
 
         const newNote = new Note({
-            userId,
+            user : userObjectId,
             fileUrl,
             description,
+            folder : folder || null ,
             createdAt: createdAt ? new Date(createdAt) : new Date(),
         });
 
