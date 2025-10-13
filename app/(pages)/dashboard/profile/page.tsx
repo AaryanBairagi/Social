@@ -403,6 +403,7 @@ export default function UserProfilePage() {
         <div className="flex justify-end mb-2">
           <SignOutButton>
             <Button
+            type="button"
             variant="outline"
             className="border-black bg-red-500 px-6 py-2 shadow hover:shadow-cyan-200 transition text-white hover:bg-red-50 hover:border-red-600 font-semibold">
               Sign Out

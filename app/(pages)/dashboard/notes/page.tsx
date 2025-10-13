@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { ArrowLeft, Edit, Trash } from "lucide-react";
+import { ArrowLeft, Download, Edit, Trash, X } from "lucide-react";
 
 type Note = {
   _id: string;
@@ -20,12 +20,14 @@ export default function NotesPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [notesByFolder, setNotesByFolder] = useState<{ [folder: string]: Note[] }>({});
-  const [newFolderName, setNewFolderName] = useState("");
   const [openFolder, setOpenFolder] = useState<string | null>(null);
 
   const [editNote , SetEditNote] = useState<Note | null>(null);
   const [editDescription , SetEditDescription] = useState("");
   const [editFolder , SetEditFolder] = useState("");
+
+  const [previewNote , SetPreviewNote] = useState<Note | null>(null);
+  const [fileContent, setFileContent] = useState<string>("");
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !user) return;
@@ -56,6 +58,19 @@ export default function NotesPage() {
 
     fetchNotes();
   }, [isLoaded, isSignedIn, user]);
+
+  useEffect(() => {
+  if (previewNote && previewNote.fileUrl.match(/\.(txt|csv)$/i)) {
+    fetch(previewNote.fileUrl)
+      .then(res => res.text())
+      .then(setFileContent)
+      .catch(() => setFileContent("Unable to preview this file."));
+  } else {
+    setFileContent("");
+  }
+  }, [previewNote]);
+
+
 
   if (!isSignedIn) {
     return (
@@ -149,68 +164,7 @@ export default function NotesPage() {
     fetchNotes();
   }
 
-
-
-//   return (
-//     <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-//       <h1 className="text-3xl font-extrabold text-cyan-700 mb-8 text-center drop-shadow">
-//         Your Notes
-//       </h1>
-
-//       <div className="mb-6 flex gap-2">
-//         <input
-//           value={newFolderName}
-//           onChange={e => setNewFolderName(e.target.value)}
-//           placeholder="New folder name"
-//           className="border px-2 py-1 rounded"
-//         />
-//         <button
-//           onClick={handleCreateFolder}
-//           className="bg-cyan-600 text-white px-4 py-1 rounded"
-//         >
-//           Create Folder
-//         </button>
-//       </div>
-
-//       {Object.entries(notesByFolder).map(([folder, notes]) => (
-//         <section key={folder} className="mb-10">
-//           <h2 className="text-xl font-bold text-cyan-600 mb-4">{folder}</h2>
-//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//             {notes.map(note => (
-//               <div
-//                 key={note._id}
-//                 className="bg-white rounded-xl shadow-lg border border-cyan-200 p-6 flex flex-col hover:shadow-[0_0_15px_rgba(22,210,255,0.5)] transition cursor-pointer"
-//                 onClick={() => window.open(note.fileUrl, "_blank")}
-//                 tabIndex={0}
-//                 role="button"
-//                 aria-label={`Open note file ${note.description || ""}`}
-//               >
-//                 {note.fileUrl.match(/\.(jpeg|jpg|png|gif|bmp|webp)$/i) ? (
-//                   <img
-//                     src={note.fileUrl}
-//                     alt={note.description || "Note image"}
-//                     className="rounded-lg mb-4 object-contain max-h-48 w-full"
-//                     loading="lazy"
-//                   />
-//                 ) : (
-//                   <div className="flex items-center justify-center bg-cyan-100 rounded-lg mb-4 text-cyan-600 font-semibold h-48">
-//                     <p className="select-text break-words">{note.description || "File"}</p>
-//                   </div>
-//                 )}
-//                 <p className="text-gray-800 font-semibold truncate">{note.description || "No description"}</p>
-//                 <time className="mt-auto text-xs text-gray-500">
-//                   {new Date(note.createdAt).toLocaleString()}
-//                 </time>
-//               </div>
-//             ))}
-//           </div>
-//         </section>
-//       ))}
-//     </main>
-//   );
-// }
-
-return (
+  return (
   <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <h1 className="text-3xl font-extrabold text-cyan-700 mb-8 text-center drop-shadow">
       Your Notes
@@ -246,7 +200,8 @@ return (
             <div
               key={note._id}
               className="bg-white rounded-xl shadow-lg border border-cyan-200 p-6 flex flex-col hover:shadow-[0_0_15px_rgba(22,210,255,0.5)] transition cursor-pointer"
-              onClick={() => window.open(note.fileUrl, "_blank")}
+              // onClick={() => window.open(note.fileUrl, "_blank")}
+              onClick={ () => SetPreviewNote(note) }
             >
               <p className="text-gray-800 font-semibold truncate mb-2">{note.description || "No description"}</p>
               <time className="text-xs text-gray-500 mt-auto">
@@ -287,7 +242,8 @@ return (
 
     {editNote && (
     <div className="fixed inset-0 bg-white/70 bg-opacity-30 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+      {/* <div className="bg-white p-6 rounded shadow-lg w-full max-w-md"> */}
+      <div className="bg-white p-6 rounded-xl border border-cyan-200 shadow-[0_0_25px_rgba(22,210,255,0.5)] ring-2 ring-cyan-300/50 max-w-md w-full transition">
         <h3 className="text-lg font-bold mb-4">Edit Note</h3>
         <input
         value={editDescription}
@@ -312,6 +268,56 @@ return (
       </div>
     </div>
     )}
+
+  {previewNote && (
+  <div className="fixed inset-0 bg-white/80 bg-opacity-40 flex items-center justify-center z-50">
+    {/* <div className="bg-white p-6 rounded shadow-lg w-full max-w-2xl relative"> */}
+    <div className="bg-white p-6 max-w-2xl relative rounded-xl border border-cyan-200 shadow-[0_0_25px_rgba(22,210,255,0.5)] ring-2 ring-cyan-300/50 max-w-md w-full transition">
+      <button
+        onClick={() => SetPreviewNote(null)}
+        className="absolute top-2 right-2 text-gray-700 hover:text-red-600"
+      >
+        <X size={20} />
+      </button>
+      <h3 className="text-lg font-bold mb-4">{previewNote.description || "File Preview"}</h3>
+      {/* Images */}
+      {previewNote.fileUrl.match(/\.(jpeg|jpg|png|gif|bmp|webp)$/i) ? (
+        <img
+          src={previewNote.fileUrl}
+          alt={previewNote.description || "Note image"}
+          className="rounded-lg object-contain max-h-[60vh] w-full"
+        />
+      ) : /* PDFs */ previewNote.fileUrl.match(/\.pdf$/i) ? (
+        <iframe
+          src={previewNote.fileUrl}
+          title="PDF Preview"
+          className="w-full h-[60vh] rounded"
+        />
+      ) : /* TXT/CSV */ previewNote.fileUrl.match(/\.(txt|csv)$/i) ? (
+        <pre className="max-h-[40vh] overflow-auto p-2 bg-gray-50 text-sm rounded mb-2">{fileContent}</pre>
+      ) : /* Word DOCX */ previewNote.fileUrl.match(/\.docx$/i) ? (
+        <iframe
+          src={`https://docs.google.com/gview?url=${encodeURIComponent(previewNote.fileUrl)}&embedded=true`}
+          className="w-full h-[60vh] rounded"
+          title="Word Preview"
+        />
+      ) : (
+        <div>
+          <p>No preview available for this file type.</p>
+        </div>
+      )}
+      <a
+        href={previewNote.fileUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        download
+        className="flex items-center max-w-70 mt-4 bg-cyan-600 text-white px-4 py-1.5 rounded"
+      >
+        Download / Open in New Tab <span> <Download size={20} className="ml-2" /></span>
+      </a>
+    </div>
+  </div>
+  )}
 
   </main>
 );
