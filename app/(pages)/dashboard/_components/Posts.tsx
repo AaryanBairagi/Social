@@ -35,7 +35,7 @@ type Post = {
 
 type PostsProps = {
   currentUserId: string;
-  userName: string;
+  userName?: string;
   userProfileImageUrl?: string;
 };
 
@@ -59,22 +59,46 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
   const [selectedFileUrl , SetSelectedFileUrl] = useState("");
 
   // Fetch all posts - comments are only IDs here!
+  
+  // const fetchPosts = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const res = await fetch(`/api/posts/?mongoId=${currentUserId}`);
+  //     const data = await res.json();
+  //     setPosts(data);
+  //   } catch (error) {
+  //     console.error("Failed to fetch posts:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const fetchPosts = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/posts");
-      const data = await res.json();
+  setLoading(true);
+  try {
+    const res = await fetch(`/api/posts/?mongoId=${currentUserId}`);
+    const data = await res.json();
+
+    // ✅ Ensure data is an array
+    if (Array.isArray(data)) {
       setPosts(data);
-    } catch (error) {
-      console.error("Failed to fetch posts:", error);
-    } finally {
-      setLoading(false);
+    } else {
+      console.error("API did not return an array:", data);
+      setPosts([]); // fallback: empty array
     }
-  };
+  } catch (error) {
+    console.error("Failed to fetch posts:", error);
+    setPosts([]); // prevent .map() error
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
+    if(!currentUserId) return;
     fetchPosts();
-  }, []);
+  }, [currentUserId]);
 
   // Fetch comments for a particular post
   const fetchCommentsForPost = async (postId: string) => {

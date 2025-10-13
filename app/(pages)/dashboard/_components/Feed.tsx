@@ -16,7 +16,7 @@ const Feed  = () => {
             const res = await fetch(`/api/user/profile?clerkId=${user.id}`);
             if (res.ok) {
             const data = await res.json();
-            if (data?._id) {
+            if (data._id) {
               setCurrentUserId(data._id); // Save MongoDB ObjectId for posts
             }
             }
@@ -30,7 +30,8 @@ const Feed  = () => {
   return (
     <div className='flex flex-col gap-4'>
       <PostInput />  
-      <Posts currentUserId={currentUserId} />
+      {/* <Posts currentUserId={currentUserId} /> */}
+      {currentUserId ? <Posts currentUserId={currentUserId} /> : <p>Loading...</p>}
     </div>
   )
 }

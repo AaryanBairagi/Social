@@ -1,11 +1,30 @@
 import { connectDB } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { Post } from "@/models/post.model";
+import { User } from "@/models/user.model";
 
 export async function GET(req: NextRequest){
-    await connectDB();
-    const posts = await Post.find().populate("user" , "firstName lastName userId profilePhoto").sort({createdAt : -1});
-    return NextResponse.json(posts);
+    try{
+        const url = new URL(req.url);
+        const searchParams = url.searchParams;
+        const mongoId = searchParams.get("mongoId");
+        if(!mongoId) return NextResponse.json({error:"UserID is Required"},{status:400});
+
+        await connectDB();
+        let posts = [];
+
+        const user = await User.findById(mongoId);
+        if(!user) return NextResponse.json({error:"User Not Found"},{status:404});
+
+        const feedUserIds = [mongoId , ...user.connections];
+        posts = await Post.find({user : { $in : feedUserIds } }).populate("user" , "firstName lastName userId profilePhoto").sort({createdAt : -1}).limit(3);
+        return NextResponse.json(posts);
+        
+
+    }catch(error){
+        console.log(error);
+        return NextResponse.json({error:"Internal Server Error"},{status:500})
+    }
 }
 
 export async function POST(req:NextRequest){
