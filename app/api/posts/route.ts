@@ -24,7 +24,7 @@ export async function GET(req: NextRequest){
         const query : any = {user : { $in : feedUserIds } } ;
 
         if(lastCreatedAt){
-            query.lastCreatedAt = {$lt : new Date(lastCreatedAt)};
+            query.createdAt = {$lt : new Date(lastCreatedAt)};
         }
 
         posts = await Post.find(query).populate("user" , "firstName lastName userId profilePhoto").sort({createdAt : -1}).limit(limit);

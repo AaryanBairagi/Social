@@ -13,7 +13,7 @@ export default function Layout({children}: Readonly<{children: React.ReactNode;}
         {/* Main area fills screen without horizontal scrollbar */}
         <main className="inset-0 mt-[120px] pb-10 pt-10 flex-1 overflow-auto min-h-screen bg-gradient-to-br from-[#e0f7fa] via-[#e0f7fa] to-[#8dc5ea] relative border border-gray-100 drop-shadow-lg">
           {/* Centered glassmorphic card */}
-          <div className="mx-auto px-8 flex items-start w-335 h-400 border-gray-100">
+          <div className="mx-auto px-8 flex items-start w-335 min-h-400 border-gray-100">
             <div className="
               flex-1 relative rounded-2xl shadow-xl border border-white/30
               bg-white/40 backdrop-blur-md
