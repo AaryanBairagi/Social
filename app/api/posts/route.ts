@@ -8,6 +8,9 @@ export async function GET(req: NextRequest){
         const url = new URL(req.url);
         const searchParams = url.searchParams;
         const mongoId = searchParams.get("mongoId");
+        const lastCreatedAt = searchParams.get("lastCreatedAt");
+        const limit = 3;
+        
         if(!mongoId) return NextResponse.json({error:"UserID is Required"},{status:400});
 
         await connectDB();
@@ -17,7 +20,14 @@ export async function GET(req: NextRequest){
         if(!user) return NextResponse.json({error:"User Not Found"},{status:404});
 
         const feedUserIds = [mongoId , ...user.connections];
-        posts = await Post.find({user : { $in : feedUserIds } }).populate("user" , "firstName lastName userId profilePhoto").sort({createdAt : -1}).limit(3);
+
+        const query : any = {user : { $in : feedUserIds } } ;
+
+        if(lastCreatedAt){
+            query.lastCreatedAt = {$lt : new Date(lastCreatedAt)};
+        }
+
+        posts = await Post.find(query).populate("user" , "firstName lastName userId profilePhoto").sort({createdAt : -1}).limit(limit);
         return NextResponse.json(posts);
         
 

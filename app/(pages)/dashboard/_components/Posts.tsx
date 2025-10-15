@@ -58,37 +58,42 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
   const [fileDescription , SetFileDescription] = useState("");
   const [selectedFileUrl , SetSelectedFileUrl] = useState("");
 
-  // Fetch all posts - comments are only IDs here!
-  
-  // const fetchPosts = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const res = await fetch(`/api/posts/?mongoId=${currentUserId}`);
-  //     const data = await res.json();
-  //     setPosts(data);
-  //   } catch (error) {
-  //     console.error("Failed to fetch posts:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const [oldFetch , SetOldFetch] = useState(false);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (lastCreatedAt : string | null = null) => {
   setLoading(true);
   try {
-    const res = await fetch(`/api/posts/?mongoId=${currentUserId}`);
+    let url = `/api/posts/?mongoId=${currentUserId}`;
+    if(lastCreatedAt){
+      url += `&lastCreatedAt=${encodeURIComponent(lastCreatedAt)}`
+    }
+
+    const res = await fetch(url);
     const data = await res.json();
 
     // ✅ Ensure data is an array
     if (Array.isArray(data)) {
-      setPosts(data);
+      if(lastCreatedAt){
+        setPosts((prev)=> [...prev, ...data]);
+      }else{
+        setPosts(data);
+      }
+
+      if(data.length===0){
+        SetOldFetch(false);
+      }else{
+        SetOldFetch(true);
+      }
+
     } else {
       console.error("API did not return an array:", data);
+      SetOldFetch(false);
       setPosts([]); // fallback: empty array
     }
   } catch (error) {
     console.error("Failed to fetch posts:", error);
-    setPosts([]); // prevent .map() error
+    setPosts([]); 
+    SetOldFetch(false); // prevent .map() error
   } finally {
     setLoading(false);
   }
@@ -97,8 +102,14 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
 
   useEffect(() => {
     if(!currentUserId) return;
-    fetchPosts();
+    fetchPosts(null);
   }, [currentUserId]);
+
+  const loadOlderPosts = ()=>{
+    if(posts.length===0) return;
+    const lastCreatedAt = posts[posts.length-1].createdAt;
+    fetchPosts(lastCreatedAt);
+  }
 
   // Fetch comments for a particular post
   const fetchCommentsForPost = async (postId: string) => {
@@ -210,7 +221,7 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
   return (
     <>
       <div className="space-y-6 max-w-3xl mx-auto px-4 mt-2">
-        {posts.map(post => {
+        { posts.map(post => {
           const isOwner = post.user?._id && currentUserId
             ? post.user._id.toString() === currentUserId.toString()
             : false;
@@ -434,6 +445,22 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
         postIdToEdit={postToEdit?._id ?? ""}
         onSave={() => fetchPosts()}
       />
+
+      {/* Fetch the older posts */}
+      {oldFetch && (
+      <div className="flex justify-center my-6">
+      <button
+        onClick={loadOlderPosts}
+        disabled={loading}
+        className="text-cyan-600 underline text-base hover:text-cyan-800"
+      >
+        {loading ? "Loading..." : "View Older Posts"}
+      </button>
+    </div>
+    )}
+
+
+
 
       {/* Add the Notes Dialog */}
       <AlertDialog open={saveToNotes} onOpenChange={SetSaveToNotes}>
