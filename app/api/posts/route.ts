@@ -40,14 +40,15 @@ export async function GET(req: NextRequest){
 export async function POST(req:NextRequest){
     await connectDB();
     const body = await req.json();
-    const { description , user , imageUrl } = body;
+    const { description , user , imageUrls } = body;
 
     if(!description || !user){
         return NextResponse.json({error: "Description and User required"},{status:400});
     }
 
     try{
-        const post = new Post({description,user,imageUrl});
+        const imgs = Array.isArray(imageUrls) ? imageUrls : [];
+        const post = new Post({description,user,imageUrls : imgs.length > 0 ? imgs : undefined});
         await post.save();
         console.log(post);
         return NextResponse.json(post,{status:201});

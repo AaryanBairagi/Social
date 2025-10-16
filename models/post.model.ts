@@ -5,7 +5,7 @@ import { IComment } from "./comment.model";
 export interface IPost{
     description:string,
     user:IUser,
-    imageUrl?:string,
+    imageUrls?:string[],
     likes?:string[],
     comments?: mongoose.Types.ObjectId[] | IComment[];
 }
@@ -28,9 +28,9 @@ const postSchema = new mongoose.Schema(
         required: true,
     },
 
-    imageUrl:{
+    imageUrls:[{
         type:String
-    },
+    }],
 
     likes:[{ 
         type:mongoose.Schema.Types.ObjectId,

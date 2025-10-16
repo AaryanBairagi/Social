@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Trash2, Edit, Heart, MessageCircle, SendIcon, FileIcon } from "lucide-react";
+import { Trash2, Edit, Heart, MessageCircle, SendIcon, FileIcon, ArrowBigLeft, ArrowLeft, ArrowRightIcon } from "lucide-react";
 import PostDialog from "./PostDialog";
-import { IconHeartFilled } from "@tabler/icons-react";
+import { IconArrowBigRightFilled, IconHeartFilled , IconArrowBigLeftFilled } from "@tabler/icons-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
@@ -26,7 +26,7 @@ type CommentObj = {
 type Post = {
   _id: string;
   description: string;
-  imageUrl?: string;
+  imageUrls?: string[];
   user: { _id: string; firstName: string; lastName: string; userId: string };
   createdAt: string;
   likes?: string[];
@@ -59,7 +59,12 @@ export default function Posts({ currentUserId, userName , userProfileImageUrl , 
   const [fileDescription , SetFileDescription] = useState("");
   const [selectedFileUrl , SetSelectedFileUrl] = useState("");
 
+  //fetch older posts 
   const [oldFetch , SetOldFetch] = useState(false);
+
+  //prev and next image implementation
+  const [ currentImageIndex , SetCurrentImageIndex ]  = useState<Record<string,number>>({});
+
 
   const fetchPosts = async (lastCreatedAt : string | null = null) => {
   setLoading(true);
@@ -280,34 +285,78 @@ export default function Posts({ currentUserId, userName , userProfileImageUrl , 
 
 
               <p className="text-gray-800 whitespace-pre-wrap">{post.description}</p>
-              {post.imageUrl && (
-                post.imageUrl.match(/\.(jpeg|jpg|png|gif|bmp|webp)$/i) ? (
-                <img src={post.imageUrl} alt="Post media" className="mt-4 rounded-lg max-h-80 w-full object-cover" />
-                ) : (
-                <div className="mt-4 flex items-center gap-2 bg-cyan-50 border border-cyan-200 p-3 rounded">
-                  <FileIcon className="w-6 h-6 text-cyan-600" />
-                    <a
-                      href={post.imageUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-cyan-700 underline font-medium"
-                      download
-                      onClick={e=>{
-                          e.preventDefault();
-                          SetSelectedFileUrl(post.imageUrl);
-                          SetFileDescription(post.description || "Downloaded File");
-                          SetSaveToNotes(true);
-                          window.open(post.imageUrl , "_blank");
-                        }
-                      }
-                      >
-                      Download&nbsp;
-                      {post.imageUrl.split("/").pop()?.slice(0, 40) || "file"}
-                    </a>
-                </div>
-                )
-              )}
 
+              {post.imageUrls && post.imageUrls.length > 0 && (
+              <div className="mt-4 flex flex-col gap-4">
+              {/* Separate images from non-images */}
+              {(() => {
+              const images = post.imageUrls.filter(url => url.match(/\.(jpeg|jpg|png|gif|bmp|webp)$/i));
+              const files = post.imageUrls.filter(url => !url.match(/\.(jpeg|jpg|png|gif|bmp|webp)$/i));
+
+              return (
+              <>
+              {/* Image carousel */}
+              {images.length > 0 && (
+              <div className="relative max-w-full">
+                <img
+                  src={images[currentImageIndex[post._id] ?? 0]}
+                  alt={`Post image ${currentImageIndex[post._id] ?? 0 + 1}`}
+                  className="rounded-lg max-h-80 w-full object-cover"
+                />
+                {images.length > 1 && (
+                  <div className="absolute top-2 right-2 flex gap-2">
+                  <button
+                    onClick={() =>
+                      SetCurrentImageIndex((prev) => ({
+                        ...prev,
+                        [post._id]:
+                          (prev[post._id] ?? 0) === 0 ? images.length - 1 : (prev[post._id] ?? 0) - 1,
+                      }))
+                    }
+                    className="bg-gray-200 p-1 rounded"
+                  >
+                    <IconArrowBigLeftFilled size={20} className="hover:text-cyan-400 hover:bg-white text-gray-500 bg-cyan-400" />
+                  </button>
+                  <button
+                    onClick={() =>
+                      SetCurrentImageIndex((prev) => ({
+                        ...prev,
+                        [post._id]: ((prev[post._id] ?? 0) + 1) % images.length,
+                      }))
+                    }
+                    className="bg-gray-200 p-1 rounded"
+                  >
+                    <IconArrowBigRightFilled size={20} className="hover:text-cyan-400 hover:bg-white text-gray-500 bg-cyan-400"/> 
+                  </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Files stacked vertically */}
+            {files.length > 0 && (
+              <div className="mt-4 flex flex-col gap-4">
+                {files.map((url, idx) => (
+                <div key={idx} className="flex items-center gap-2 bg-cyan-50 border border-cyan-200 p-3 rounded">
+                  <FileIcon className="w-6 h-6 text-cyan-600" />
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-cyan-700 underline font-medium"
+                    download
+                  >
+                    Download {url.split("/").pop()?.slice(0, 40) || "file"}
+                  </a>
+                </div>
+                ))}
+
+              </div>
+              )}
+            </>);
+            })()}
+            </div>
+            )}
 
               <div className="mt-4 flex items-center space-x-6 text-gray-600 text-base">
                 <button
