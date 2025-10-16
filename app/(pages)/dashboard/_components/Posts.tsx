@@ -37,10 +37,11 @@ type PostsProps = {
   currentUserId: string;
   userName?: string;
   userProfileImageUrl?: string;
+  mode?: "feed" | "self";
 };
 
 // ---------- Component ----------
-export default function Posts({ currentUserId, userName, userProfileImageUrl }: PostsProps) {
+export default function Posts({ currentUserId, userName , userProfileImageUrl , mode }: PostsProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -63,7 +64,7 @@ export default function Posts({ currentUserId, userName, userProfileImageUrl }: 
   const fetchPosts = async (lastCreatedAt : string | null = null) => {
   setLoading(true);
   try {
-    let url = `/api/posts/?mongoId=${currentUserId}`;
+    let url = mode === 'self' ? `/api/posts/self?mongoId=${currentUserId}` : `/api/posts/?mongoId=${currentUserId}`;
     if(lastCreatedAt){
       url += `&lastCreatedAt=${encodeURIComponent(lastCreatedAt)}`
     }

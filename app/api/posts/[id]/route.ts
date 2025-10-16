@@ -2,7 +2,7 @@ import { connectDB } from "@/lib/db";
 import { Post } from "@/models/post.model";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PUT(req:NextRequest, {params} : { params: {id:string} } ){
+export async function PUT(req:NextRequest, context : { params: {id:string} } ){
     await connectDB();
     const body = await req.json();
 
@@ -12,7 +12,9 @@ export async function PUT(req:NextRequest, {params} : { params: {id:string} } ){
     }
 
     try{
-        const updated = await Post.findByIdAndUpdate(params.id, { ...body, ...(body.imageUrl === undefined ? { $unset: { imageUrl: 1 } } : {}) } , { new: true }).populate("user", "firstName lastName userId profilePhoto");
+        const params = await context.params;
+        const id = params.id;
+        const updated = await Post.findByIdAndUpdate(id, { ...body, ...(body.imageUrl === undefined ? { $unset: { imageUrl: 1 } } : {}) } , { new: true }).populate("user", "firstName lastName userId profilePhoto");
         if(!updated) return NextResponse.json({error: "Post Not Found"},{status:404});
         return NextResponse.json(updated);
     }catch(error){

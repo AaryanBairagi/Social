@@ -31,7 +31,7 @@ const Feed  = () => {
     <div className='flex flex-col gap-4'>
       <PostInput />  
       {/* <Posts currentUserId={currentUserId} /> */}
-      {currentUserId ? <Posts currentUserId={currentUserId} /> : <p>Loading...</p>}
+      {currentUserId ? <Posts currentUserId={currentUserId} mode="feed" /> : <p>Loading...</p>}
     </div>
   )
 }
