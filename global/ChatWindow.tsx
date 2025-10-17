@@ -20,7 +20,12 @@ export default function ChatWindow({ currentUserId, receiver }: any) {
   // Connect to socket (for real-time)
   useEffect(() => {
     if (!socket) {
-      socket = io({ path: "/api/socket" });
+      // socket = io({ path: "/api/socket" });
+      socket = io({
+        path: "/api/socket",
+        transports: ["websocket"],
+      });
+
       socket.emit("join", currentUserId);
       socket.on("receiveMessage", (msg: any) => {
         if (

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Trash2, Edit, Heart, MessageCircle, SendIcon, FileIcon, ArrowBigLeft, ArrowLeft, ArrowRightIcon } from "lucide-react";
+import { Trash2, Edit, Heart, MessageCircle, SendIcon, FileIcon } from "lucide-react";
 import PostDialog from "./PostDialog";
 import { IconArrowBigRightFilled, IconHeartFilled , IconArrowBigLeftFilled } from "@tabler/icons-react";
 import { Skeleton } from "@/components/ui/skeleton";
