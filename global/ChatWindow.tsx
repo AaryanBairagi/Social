@@ -7,7 +7,9 @@ let socket: any;
 export default function ChatWindow({ currentUserId, receiver }: any) {
   const [messages, setMessages] = useState<any[]>([]);
   const [text, setText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load chat history from MongoDB when receiver changes
   useEffect(() => {
@@ -17,34 +19,50 @@ export default function ChatWindow({ currentUserId, receiver }: any) {
       .then((data) => setMessages(data || []));
   }, [currentUserId, receiver]);
 
-  // Connect to socket (for real-time)
+  // Initialize Socket.io
   useEffect(() => {
+    fetch('/api/socket');
     if (!socket) {
-      // socket = io({ path: "/api/socket" });
       socket = io({
         path: "/api/socket",
         transports: ["websocket"],
       });
-
-      socket.emit("join", currentUserId);
-      socket.on("receiveMessage", (msg: any) => {
-        if (
-          (msg.sender === receiver._id && msg.receiver === currentUserId) ||
-          (msg.sender === currentUserId && msg.receiver === receiver._id)
-        ) {
-          setMessages((prev) => [...prev, msg]);
-        }
-      });
     }
+
+    socket.emit("join", currentUserId);
+
+    // Listen for new messages
+    socket.on("receiveMessage", (msg: any) => {
+      if (
+        (msg.sender === receiver._id && msg.receiver === currentUserId) ||
+        (msg.sender === currentUserId && msg.receiver === receiver._id)
+      ) {
+        setMessages((prev) => [...prev, msg]);
+      }
+    });
+
+    // Listen for typing indicator
+    socket.on("typing", (data: any) => {
+      if (data.sender === receiver._id) {
+        setIsTyping(true);
+        // Hide after 2s if no new typing event
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 2000);
+      }
+    });
+
     return () => {
       socket?.off("receiveMessage");
+      socket?.off("typing");
     };
   }, [currentUserId, receiver]);
 
+  // Auto-scroll to bottom
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isTyping]);
 
+  // Send message
   const sendMessage = async () => {
     if (!text.trim()) return;
     const msg = {
@@ -59,15 +77,20 @@ export default function ChatWindow({ currentUserId, receiver }: any) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
-      credentials: "include" 
+      credentials: "include",
     });
   };
 
-  const me  = {_id : currentUserId};
+  // Emit typing event
+  const handleTyping = (e: any) => {
+    setText(e.target.value);
+    socket.emit("typing", { sender: currentUserId, receiver: receiver._id });
+  };
+
+  const me = { _id: currentUserId };
 
   return (
     <div className="flex flex-col flex-1 h-full pb-3">
-      {/* <header className="flex items-center gap-2 py-5 px-5 border-b border-cyan-100 bg-cyan-500 font-bold text-lg"> */}
       <header className="flex items-center gap-2 py-5 px-5 border-b border-cyan-200 bg-cyan-600 text-white font-bold text-lg shadow">
         <img
           src={receiver.profilePhoto || "/default-avatar.png"}
@@ -76,10 +99,30 @@ export default function ChatWindow({ currentUserId, receiver }: any) {
         <span>{receiver.firstName} {receiver.lastName}</span>
         <span className="ml-2 text-lg font-bold text-white/60">@{receiver.userId}</span>
       </header>
-      <div className="flex-1 overflow-y-auto p-5 bg-white/60">
-        {messages.map((m, i) => (
+
+      
+    <div className="flex-1 overflow-y-auto p-5 bg-white/60">
+      {(() => {
+      let lastDate = "";
+      return messages.map((m, i) => {
+        const msgDate = m.createdAt ? new Date(m.createdAt) : new Date();
+        const dateString = msgDate.toLocaleDateString(undefined, {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+        });
+        const showDate = dateString !== lastDate;
+        lastDate = dateString;
+
+        return (
+          <div key={i}>
+            {showDate && (
+              <div className="flex justify-center mb-2 text-xs text-gray-400">
+                {dateString}
+              </div>
+            )}
+
           <div
-            key={i}
             className={`mb-4 flex ${m.sender === currentUserId ? "justify-end" : "justify-start"}`}
           >
             <div
@@ -90,7 +133,7 @@ export default function ChatWindow({ currentUserId, receiver }: any) {
               }`}
             >
               <span className="block font-semibold text-xs mb-1">
-                {m.sender === me._id ? "You" : ""}
+                {m.sender === currentUserId ? "You" : ""}
               </span>
               {m.text}
               <span className="block text-[10px] mt-1 text-right text-gray-400">
@@ -98,16 +141,33 @@ export default function ChatWindow({ currentUserId, receiver }: any) {
               </span>
             </div>
           </div>
-        ))}
-        <div ref={bottomRef} />
+        </div>
+        );
+      });
+      })()}
+
+      {/* Typing indicator */}
+      {isTyping && (
+      <div className="mb-4 flex justify-start">
+        <div className="rounded-2xl px-4 py-2 max-w-[50px] flex items-center justify-center gap-1 bg-slate-100 border border-gray-200">
+          <span className="dot w-2 h-2 rounded-full bg-gray-500 animate-bounce"></span>
+          <span className="dot w-2 h-2 rounded-full bg-gray-500 animate-bounce delay-150"></span>
+          <span className="dot w-2 h-2 rounded-full bg-gray-500 animate-bounce delay-300"></span>
+        </div>
       </div>
+      )}
+
+      <div ref={bottomRef} />
+    </div>
+
+
       <div className="flex gap-2 px-4 mt-1 items-center">
         <input
           className="flex-1 border rounded-full px-4 py-2 shadow text-sm focus:outline-cyan-400"
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={handleTyping}
           placeholder="Type message..."
-          onKeyDown={e => e.key === "Enter" && sendMessage()}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
         />
         <button
           onClick={sendMessage}
@@ -116,10 +176,30 @@ export default function ChatWindow({ currentUserId, receiver }: any) {
           Send
         </button>
       </div>
+
+      <style jsx>{`
+        .dot {
+          display: inline-block;
+        }
+        .dot:nth-child(1) {
+          animation-delay: 0s;
+        }
+        .dot:nth-child(2) {
+          animation-delay: 0.15s;
+        }
+        .dot:nth-child(3) {
+          animation-delay: 0.3s;
+        }
+        @keyframes bounce {
+          0%, 80%, 100% { transform: scale(0); }
+          40% { transform: scale(1); }
+        }
+        .animate-bounce {
+          animation: bounce 1s infinite ease-in-out;
+        }
+      `}</style>
     </div>
   );
 }
-
-
 
 
