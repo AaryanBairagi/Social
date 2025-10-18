@@ -25,6 +25,14 @@ export default function handler(req, res) {
           text,
           createdAt: new Date(),
         });
+
+        console.log("backend route for notifictaion");
+        io.to(receiver).emit("newMessageNotification",{sender});
+      });
+
+      socket.on("typing" , ({receiver,sender})=>{
+        console.log(`${sender} is typing to ${receiver}`);
+        io.to(receiver).emit("typing",{sender});
       });
 
       socket.on("disconnect", () => {

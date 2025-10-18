@@ -1,15 +1,20 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
+import EmojiPicker from "emoji-picker-react";
+import { ArrowRightCircle, MessageSquare, SmileIcon } from "lucide-react";
+
+
 
 let socket: any;
 
 export default function ChatWindow({ currentUserId, receiver }: any) {
-  const [messages, setMessages] = useState<any[]>([]);
-  const [text, setText] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [messages , setMessages] = useState<any[]>([]);
+  const [text , setText] = useState("");
+  const [isTyping , setIsTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [emojiText , SetEmojiText] = useState(false);
 
   // Load chat history from MongoDB when receiver changes
   useEffect(() => {
@@ -87,6 +92,13 @@ export default function ChatWindow({ currentUserId, receiver }: any) {
     socket.emit("typing", { sender: currentUserId, receiver: receiver._id });
   };
 
+
+  const EmojiHandle = (emojiData:any) => {
+    const emojiChar = emojiData.emoji;
+    setText((prev) => prev + emojiChar);
+    SetEmojiText(false);
+  }
+
   const me = { _id: currentUserId };
 
   return (
@@ -161,7 +173,21 @@ export default function ChatWindow({ currentUserId, receiver }: any) {
     </div>
 
 
-      <div className="flex gap-2 px-4 mt-1 items-center">
+      <div className="flex gap-2 px-4 mt-1 items-center relative">
+        <button 
+          type="button"
+          onClick={ () => { SetEmojiText((s)=> !s) } }
+          className="text-cyan-500 hover:text-cyan-700"
+        >
+          <SmileIcon className="h-6 w-6" />
+        </button>
+
+        { emojiText && (
+          <div className="absolute bottom-full mb-2 left-0 z-50">
+            <EmojiPicker onEmojiClick={EmojiHandle} />
+          </div>
+          )}
+
         <input
           className="flex-1 border rounded-full px-4 py-2 shadow text-sm focus:outline-cyan-400"
           value={text}
@@ -173,7 +199,8 @@ export default function ChatWindow({ currentUserId, receiver }: any) {
           onClick={sendMessage}
           className="px-6 py-2 rounded-full text-sm font-bold bg-cyan-600 text-white hover:bg-cyan-700 shadow"
         >
-          Send
+          {/* Send */}
+          <ArrowRightCircle  className="w-6 h-6" />
         </button>
       </div>
 

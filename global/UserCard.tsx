@@ -132,7 +132,3 @@ export function UserCard({ user, refresh }: { user: ConnectionUser; refresh?: ()
   );
 }
 
-
-
-
-

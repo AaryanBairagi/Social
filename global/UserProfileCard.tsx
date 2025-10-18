@@ -32,7 +32,7 @@ export function UserProfileCard({
       "
     >
       <img
-        src={profilePhoto || ""}
+        src={profilePhoto || '/User-Prof.png'}
         alt={userId}
         className="w-28 h-28 rounded-full object-cover border-4 border-cyan-500 shadow-md mr-8"
         loading="lazy"

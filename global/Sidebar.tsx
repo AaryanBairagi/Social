@@ -14,7 +14,9 @@ import { useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { FileText, GraduationCap, MessageCircle, Award, Cog, LifeBuoy } from "lucide-react";
 import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 
+let socket : any;
 export function SideBar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -22,7 +24,9 @@ export function SideBar() {
 
   // Local state to store profile photo URL from your DB
   const [profilePhoto, setProfilePhoto] = useState<string>("");
-  const [hasRedaMessages , setHasReadMessages] = useState(false);
+  const [hasUnread , setHasUnread] = useState(false);
+
+
   // Fetch user profile photo from your backend API
   useEffect(() => {
     if (!user) return;
@@ -41,11 +45,51 @@ export function SideBar() {
     fetchUserProfile();
   }, [user]);
 
+  useEffect(()=>{
+    if(!user) return;
+    fetch('/api/socket');
+
+    if(!socket){
+      socket = io('/' , { path:'/api/socket' , transports:['websocket'] });
+    }
+
+    socket.on('connect' , ()=>{
+      console.log('Socket connected with ID : ' , socket.id);
+      socket.emit("join" , user.id);
+    });
+
+    socket.on("newMessageNotification",({sender})=>{
+      console.log('unread triggered',sender);
+      if(!pathname.includes('/dashboard/messages')){
+        console.log('unread finished');
+        setHasUnread(true);
+      }
+    });
+
+    socket.on('disconnect' , () => {
+      console.log("Socket Disconnected");
+    });
+
+    return ()=>{
+      socket.off('newMessageNotification');
+      socket.off('connect');
+      socket.off('disconnect');
+    }
+  },[user,pathname]);
+
+
+  //Check if the user has read the messages
+  useEffect(()=>{
+    if(pathname.includes('/dashboard/messages')){
+      setHasUnread(false);
+    }
+  },[pathname])
+
   const navItems = [
     { name: "Notes", icon: FileText, href: "/dashboard/notes" },
-    { name: "Materials", icon: GraduationCap, href: "/study-materials" },
+    { name: "Materials", icon: GraduationCap, href: "/dashboard/study-materials" },
     { name: "Messages", icon: MessageCircle, href: "/dashboard/messages" },
-    { name: "Achievements", icon: Award, href: "/achievements" },
+    { name: "Achievements", icon: Award, href: "/dashboard/achievements" },
     { name: "Settings", icon: Cog, href: "/dashboard/settings" },
     { name: "Support", icon: LifeBuoy, href: "/contact-us" },
   ];
@@ -71,11 +115,14 @@ export function SideBar() {
                           "hover:text-cyan-500"
                         )}
                       >
-                        <button type="button" aria-label={name} className="w-16 h-16 flex items-center justify-center text-xl">
+                        <button type="button" aria-label={name} className="relative w-16 h-16 flex items-center justify-center text-xl">
                           <Icon
                             size={24}
                             className={cn(isActive ? "text-cyan-500" : "text-black/40")}
                           />
+                          {name==="Messages" && !isActive && hasUnread && (
+                            <span className="absolute top-2 right-2 h-3 w-3 bg-red-800 rounded-full shadow-md" />
+                          )}
                         </button>
                       </SidebarMenuButton>
                     </TooltipTrigger>
