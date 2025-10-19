@@ -16,7 +16,7 @@ interface SearchDropDownProps{
 export function SearchDropdownItem({ user, onClick } : SearchDropDownProps) {
     return (
     <Link
-        href={`/users/${user.userId}`}
+        href={`/profile/${user.userId}`}
         onClick={onClick}
         className="flex items-center gap-3 px-4 py-2 hover:bg-zinc-100 transition-colors cursor-pointer"
     >

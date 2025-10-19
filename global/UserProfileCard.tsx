@@ -39,7 +39,7 @@ export function UserProfileCard({
       />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-2xl font-bold text-gray-900 truncate">{firstName} {lastName}</span>
+          <span className="text-2xl font-bold text-gray-900 break-words whitespace-normal">{firstName} {lastName}</span>
           <span className="text-gray-400 ml-2 text-lg">@{userId}</span>
         </div>
         {bio && <div className="mb-1 text-gray-700">{bio}</div>}
