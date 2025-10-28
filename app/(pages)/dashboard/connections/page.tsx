@@ -354,10 +354,13 @@ const fetchConnectionData = useCallback(async () => {
                     key={user._id}
                     user={{ 
                         ...user,
-                        isFollowedByUser: true,
-                        hasSentRequest: false,   
-                        hasReceivedRequest: true,
-                    }}
+                        // isFollowedByUser: true,
+                        // hasSentRequest: false,   
+                        // hasReceivedRequest: true,
+                        isFollowedByUser: following.some(f => f._id === user._id),
+                        hasSentRequest: sentRequests.includes(user._id),
+                        hasReceivedRequest: receivedRequests.includes(user._id),
+                      }}
                     refresh={refreshConnections}
                   />
                 )
