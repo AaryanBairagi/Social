@@ -227,6 +227,7 @@ const fetchConnectionData = useCallback(async () => {
               interests={profileUser.interests}
               followersCount={followers.length}
               followingCount={following.length}
+              showActions={false}
             />
           )
         )}

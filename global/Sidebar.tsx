@@ -87,9 +87,9 @@ export function SideBar() {
 
   const navItems = [
     { name: "Notes", icon: FileText, href: "/dashboard/notes" },
-    { name: "Materials", icon: GraduationCap, href: "/dashboard/study-materials" },
+    { name: "Materials", icon: GraduationCap, href: "/coming-soon" },
     { name: "Messages", icon: MessageCircle, href: "/dashboard/messages" },
-    { name: "Achievements", icon: Award, href: "/dashboard/achievements" },
+    { name: "Achievements", icon: Award, href: "/coming-soon" },
     { name: "Settings", icon: Cog, href: "/dashboard/settings" },
     { name: "Support", icon: LifeBuoy, href: "/contact-us" },
   ];

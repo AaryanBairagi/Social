@@ -14,7 +14,7 @@ const Navbar = () => {
     { title: "Home" , icon: <Home/> , href:"/dashboard"},
     { title: "Posts", icon: <LayoutGrid />, href: "/dashboard/posts" },
     { title: "Connections", icon: <Users />, href: "/dashboard/connections" },
-    { title: "Events", icon: <Calendar />, href: "/dashboard/events" },
+    { title: "Events", icon: <Calendar />, href: "/coming-soon" },
     { title: "Profile", icon: <UserCircle />, href: "/dashboard/profile" },
   ];
 

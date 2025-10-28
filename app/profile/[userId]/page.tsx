@@ -131,6 +131,7 @@ export default function UserProfileView() {
                 isFollowedByUser={profileData.isFollowedByUser}
                 hasSentRequest={profileData.hasSentRequest}
                 hasReceivedRequest={profileData.hasReceivedRequest}
+                showActions={true}
               />
             </div>
 

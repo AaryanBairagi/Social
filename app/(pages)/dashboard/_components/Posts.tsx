@@ -111,6 +111,20 @@ export default function Posts({ currentUserId, userName , userProfileImageUrl , 
     fetchPosts(null);
   }, [currentUserId]);
 
+  useEffect(()=> {
+    const storedUrl = localStorage.getItem("selectedFileUrl"); 
+    const showDialog = localStorage.getItem("showSaveDialog");
+
+    if(storedUrl && showDialog=="true" ){
+      SetSaveToNotes(true);
+      SetSelectedFileUrl(storedUrl);
+
+      // clear flags so it doesn't re-trigger
+      localStorage.removeItem("showSaveDialog");
+      localStorage.removeItem("selectedFileUrl");
+      }
+    },[]);
+
   const loadOlderPosts = ()=>{
     if(posts.length===0) return;
     const lastCreatedAt = posts[posts.length-1].createdAt;
@@ -246,18 +260,6 @@ export default function Posts({ currentUserId, userName , userProfileImageUrl , 
               onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 0 24px 4px #22d3ee,0 8px 24px 0 rgba(6,182,212,0.13)")}
               onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 1.5px 16px 0 rgba(6,182,212,0.12),0 2.5px 8px 0 rgba(6,182,212,0.04)")}
             >
-              {/* <div className="flex items-center gap-4 mb-3">
-
-                <div className="w-12 h-12 bg-cyan-200 rounded-full flex items-center justify-center font-bold text-cyan-700 select-none">
-                  {post.user.firstName?.[0] || post.user.userId?.[0] || "U"}
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">{post.user.firstName} {post.user.lastName}</p>
-                  <p className="text-sm text-gray-500">@{post.user.userId}</p>
-                  <p className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleString()}</p>
-                </div>
-              </div> */}
-
 
               <div className="flex items-center gap-4 mb-3">
                 {post.user.profilePhoto ? (
@@ -343,6 +345,10 @@ export default function Posts({ currentUserId, userName , userProfileImageUrl , 
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={()=>{
+                      localStorage.setItem("showSaveDialog","true");
+                      localStorage.setItem("selectedFileUrl",url);
+                    }}
                     className="text-cyan-700 underline font-medium"
                     download
                   >
