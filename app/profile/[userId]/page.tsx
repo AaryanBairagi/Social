@@ -22,22 +22,69 @@ export default function UserProfileView() {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingPosts, setLoadingPosts] = useState(true);
 
+  // useEffect(() => {
+  //   async function fetchProfile() {
+  //     setLoadingProfile(true);
+  //     try {
+  //       const res = await fetch(`/api/profile/${params.userId}`);
+  //       if (!res.ok) throw new Error("Failed to fetch profile");
+  //       const data = await res.json();
+  //       setProfileData(data);
+  //     } catch {
+  //       setProfileData(null);
+  //     } finally {
+  //       setLoadingProfile(false);
+  //     }
+  //   }
+  //   if (params.userId) fetchProfile();
+  // }, [params.userId]);
+
   useEffect(() => {
-    async function fetchProfile() {
-      setLoadingProfile(true);
-      try {
-        const res = await fetch(`/api/profile/${params.userId}`);
-        if (!res.ok) throw new Error("Failed to fetch profile");
-        const data = await res.json();
-        setProfileData(data);
-      } catch {
-        setProfileData(null);
-      } finally {
-        setLoadingProfile(false);
-      }
+  async function fetchProfile() {
+    setLoadingProfile(true);
+    try {
+      // 1) fetch profile by userId
+      const res = await fetch(`/api/profile/${params.userId}`);
+      if (!res.ok) throw new Error("Failed to fetch profile");
+      const data = await res.json();
+
+      // 2) get current logged-in user's mongo id
+      const idRes = await fetch("/api/user/getId");
+      const idJson = idRes.ok ? await idRes.json() : null;
+      const mongoUserId = idJson?.id ?? null;
+
+      // 3) fetch connections data (requests + following) using mongoUserId
+      const [requestsRes, followingRes] = await Promise.all([
+        fetch("/api/connections/requests"),
+        mongoUserId ? fetch(`/api/connections/${mongoUserId}/following`) : Promise.resolve(new Response(JSON.stringify([]), { status: 200 })),
+      ]);
+
+      const requests = requestsRes.ok ? await requestsRes.json() : { sentRequests: [], receivedRequests: [] };
+      const followingData = followingRes.ok ? await followingRes.json() : [];
+
+      // 4) compare IDs as strings (important!)
+      const profileMongoId = data._id?.toString?.() ?? data._id;
+      const isFollowedByUser = followingData.some((u: any) => (u._id?.toString?.() ?? u._id) === profileMongoId);
+      const hasSentRequest = (requests.sentRequests || []).map((id:any) => id.toString()).includes(profileMongoId);
+      const hasReceivedRequest = (requests.receivedRequests || []).map((id:any) => id.toString()).includes(profileMongoId);
+
+      setProfileData({
+        ...data,
+        isFollowedByUser,
+        hasSentRequest,
+        hasReceivedRequest,
+      });
+    } catch (err) {
+      console.error("Profile fetch error:", err);
+      setProfileData(null);
+    } finally {
+      setLoadingProfile(false);
     }
-    if (params.userId) fetchProfile();
+  }
+
+  if (params.userId) fetchProfile();
   }, [params.userId]);
+
 
   useEffect(() => {
     async function fetchPosts() {
