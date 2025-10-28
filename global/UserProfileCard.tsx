@@ -32,6 +32,7 @@ export function UserProfileCard({
     hasReceivedRequest,
   });
 
+  // ---- Handlers ----
   const handleFollow = async () => {
     try {
       const res = await fetch("/api/connections/follow", {
@@ -54,7 +55,7 @@ export function UserProfileCard({
         body: JSON.stringify({ targetUserId: userId }),
       });
       if (!res.ok) throw new Error("Failed to unfollow");
-      setFollowState((prev) => ({ ...prev, isFollowedByUser: false }));
+      setFollowState({ isFollowedByUser: false, hasSentRequest: false, hasReceivedRequest: false });
     } catch (err) {
       console.error("Unfollow error:", err);
     }
@@ -74,12 +75,13 @@ export function UserProfileCard({
     }
   };
 
+  // ---- Button logic ----
   const renderButton = () => {
     if (followState.hasReceivedRequest) {
       return (
         <button
           onClick={handleAccept}
-          className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg transition-all shadow-md"
+          className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg shadow-md transition-all"
         >
           Accept
         </button>
@@ -88,7 +90,7 @@ export function UserProfileCard({
       return (
         <button
           disabled
-          className="bg-gray-400 text-white px-5 py-2 rounded-lg cursor-not-allowed shadow-md"
+          className="bg-gray-400 text-white px-5 py-2 rounded-lg shadow-md cursor-not-allowed"
         >
           Requested
         </button>
@@ -97,7 +99,7 @@ export function UserProfileCard({
       return (
         <button
           onClick={handleUnfollow}
-          className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg transition-all shadow-md"
+          className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg shadow-md transition-all"
         >
           Unfollow
         </button>
@@ -106,7 +108,7 @@ export function UserProfileCard({
       return (
         <button
           onClick={handleFollow}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg transition-all shadow-md"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md transition-all"
         >
           Follow
         </button>
@@ -114,6 +116,7 @@ export function UserProfileCard({
     }
   };
 
+  // ---- JSX ----
   return (
     <div
       className="
@@ -131,41 +134,40 @@ export function UserProfileCard({
         className="w-28 h-28 rounded-full object-cover border-4 border-cyan-500 shadow-md mr-8"
         loading="lazy"
       />
+
       <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-2">
-          <div>
+        {/* Header Row */}
+        <div className="flex items-start justify-between mb-2">
+          <div className="pr-4">
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold text-gray-900 break-words whitespace-normal">
                 {firstName} {lastName}
               </span>
               <span className="text-gray-400 ml-2 text-lg">@{userId}</span>
             </div>
-            {bio && <div className="mb-1 text-gray-700">{bio}</div>}
+            {bio && <div className="mt-1 text-gray-700">{bio}</div>}
           </div>
-          {renderButton()}
+
+          <div className="ml-4 self-start">{renderButton()}</div>
         </div>
 
+        {/* Hobbies */}
         {interests && interests.length > 0 && (
           <div className="mb-3">
             <span className="font-semibold text-gray-800">Hobbies:</span>{" "}
-            <span className="text-cyan-600">
-              {interests.filter(Boolean).join(", ")}
-            </span>
+            <span className="text-cyan-600">{interests.filter(Boolean).join(", ")}</span>
           </div>
         )}
 
+        {/* Stats */}
         <div className="flex gap-8 mt-4 font-semibold text-cyan-700">
           <div>
             <span className="text-lg">{followersCount}</span>
-            <span className="block text-gray-500 font-normal text-xs">
-              Followers
-            </span>
+            <span className="block text-gray-500 font-normal text-xs">Followers</span>
           </div>
           <div>
             <span className="text-lg">{followingCount}</span>
-            <span className="block text-gray-500 font-normal text-xs">
-              Following
-            </span>
+            <span className="block text-gray-500 font-normal text-xs">Following</span>
           </div>
         </div>
       </div>
