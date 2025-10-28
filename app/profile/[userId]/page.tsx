@@ -22,22 +22,6 @@ export default function UserProfileView() {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingPosts, setLoadingPosts] = useState(true);
 
-  // useEffect(() => {
-  //   async function fetchProfile() {
-  //     setLoadingProfile(true);
-  //     try {
-  //       const res = await fetch(`/api/profile/${params.userId}`);
-  //       if (!res.ok) throw new Error("Failed to fetch profile");
-  //       const data = await res.json();
-  //       setProfileData(data);
-  //     } catch {
-  //       setProfileData(null);
-  //     } finally {
-  //       setLoadingProfile(false);
-  //     }
-  //   }
-  //   if (params.userId) fetchProfile();
-  // }, [params.userId]);
 
   useEffect(() => {
   async function fetchProfile() {
@@ -136,6 +120,7 @@ export default function UserProfileView() {
               <UserProfileCard
                 profilePhoto={profileData.profilePhoto}
                 userId={profileData.userId}
+                mongoId={profileData._id}
                 firstName={profileData.firstName}
                 lastName={profileData.lastName}
                 bio={profileData.bio}

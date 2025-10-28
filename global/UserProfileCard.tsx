@@ -4,6 +4,7 @@ import React, { useState } from "react";
 export function UserProfileCard({
   profilePhoto,
   userId,
+  mongoId,
   firstName,
   lastName,
   bio,
@@ -16,6 +17,7 @@ export function UserProfileCard({
 }: {
   profilePhoto?: string;
   userId: string;
+  mongoId: string;
   firstName?: string;
   lastName?: string;
   bio?: string;
@@ -35,7 +37,7 @@ export function UserProfileCard({
   // ---- Handlers ----
   const handleFollow = async () => {
     try {
-      const res = await fetch("/api/connections/follow", {
+      const res = await fetch(`/api/connections/${mongoId}/follow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targetUserId: userId }),
@@ -49,7 +51,7 @@ export function UserProfileCard({
 
   const handleUnfollow = async () => {
     try {
-      const res = await fetch("/api/connections/unfollow", {
+      const res = await fetch(`/api/connections/${mongoId}/unfollow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targetUserId: userId }),
@@ -63,7 +65,7 @@ export function UserProfileCard({
 
   const handleAccept = async () => {
     try {
-      const res = await fetch("/api/connections/accept", {
+      const res = await fetch(`/api/connections/${mongoId}/accept`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targetUserId: userId }),
@@ -99,7 +101,7 @@ export function UserProfileCard({
       return (
         <button
           onClick={handleUnfollow}
-          className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg shadow-md transition-all"
+          className="bg-red-500 hover:bg-red-600 drop-shadow-lg text-white px-5 py-2 rounded-lg shadow-md transition-all"
         >
           Unfollow
         </button>
@@ -108,7 +110,7 @@ export function UserProfileCard({
       return (
         <button
           onClick={handleFollow}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md transition-all"
+          className="bg-cyan-500 hover:bg-cyan-600 drop-shadow-lg text-white px-5 py-2 rounded-lg shadow-md transition-all"
         >
           Follow
         </button>
