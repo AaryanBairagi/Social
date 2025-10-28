@@ -95,6 +95,10 @@ export default function UserProfileView() {
                 interests={profileData.interests}
                 followersCount={profileData.connections?.length || 0}
                 followingCount={profileData.followingCount || 0}
+                ///////////////////
+                isFollowedByUser={profileData.isFollowedByUser}
+                hasSentRequest={profileData.hasSentRequest}
+                hasReceivedRequest={profileData.hasReceivedRequest}
               />
             </div>
 
