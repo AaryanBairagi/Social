@@ -112,17 +112,31 @@ export default function Posts({ currentUserId, userName , userProfileImageUrl , 
   }, [currentUserId]);
 
   useEffect(()=> {
-    const storedUrl = localStorage.getItem("selectedFileUrl"); 
-    const showDialog = localStorage.getItem("showSaveDialog");
+      const checkDialog = ()=>{
+      const storedUrl = localStorage.getItem("selectedFileUrl"); 
+      const showDialog = localStorage.getItem("showSaveDialog");
 
-    if(storedUrl && showDialog=="true" ){
-      SetSaveToNotes(true);
-      SetSelectedFileUrl(storedUrl);
+      if(storedUrl && showDialog=="true" ){
+        SetSaveToNotes(true);
+        SetSelectedFileUrl(storedUrl);
 
-      // clear flags so it doesn't re-trigger
-      localStorage.removeItem("showSaveDialog");
-      localStorage.removeItem("selectedFileUrl");
+        // clear flags so it doesn't re-trigger
+        localStorage.removeItem("showSaveDialog");
+        localStorage.removeItem("selectedFileUrl");
+        } 
       }
+
+      checkDialog();
+
+      window.addEventListener("focus",checkDialog);
+      document.addEventListener("visibilitychange",()=>{
+        if(document.visibilityState==="visible") checkDialog();
+      });
+
+      return()=>{
+        window.removeEventListener("focus",checkDialog);
+        document.removeEventListener("visibilitychange",checkDialog);
+      };
     },[]);
 
   const loadOlderPosts = ()=>{

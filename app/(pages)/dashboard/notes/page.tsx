@@ -270,7 +270,7 @@ export default function NotesPage() {
     )}
 
   {previewNote && (
-  <div className="fixed inset-0 bg-white/80 bg-opacity-40 flex items-center justify-center z-50">
+  <div className="fixed pt-10 inset-0 bg-white/80 bg-opacity-40 flex items-center justify-center z-50">
     {/* <div className="bg-white p-6 rounded shadow-lg w-full max-w-2xl relative"> */}
     <div className="bg-white p-6 max-w-2xl relative rounded-xl border border-cyan-200 shadow-[0_0_25px_rgba(22,210,255,0.5)] ring-2 ring-cyan-300/50 max-w-md w-full transition">
       <button
