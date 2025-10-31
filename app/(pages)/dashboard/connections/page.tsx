@@ -202,7 +202,8 @@ const fetchConnectionData = useCallback(async () => {
 
   const filteredDiscoverUsers = discoverUsers.filter(user => 
   user._id !== mongoUserId && // exclude self
-  !sentRequests.includes(user._id) // exclude users user has sent requests to
+  !sentRequests.includes(user._id) &&
+  !following.some(f => f._id == user._id) // exclude users user has sent requests to
 );
 
   return (

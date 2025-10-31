@@ -181,7 +181,12 @@ export default function LandingPage() {
       {/* Bottom Footer */}
       <footer className="w-full text-center py-6 mb-4 text-gray-500 text-sm drop-shadow-sm">
         &copy; {new Date().getFullYear()} ModNect. All Rights Reserved.
+        <br />
+        <span className="text-gray-600">
+          Made with ❤️ by <span className="font-medium text-cyan-700">Aaryan Bairagi</span>
+        </span>
       </footer>
+
     </div>
   );
 }
