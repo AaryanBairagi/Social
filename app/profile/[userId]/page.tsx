@@ -125,8 +125,8 @@ export default function UserProfileView() {
                 lastName={profileData.lastName}
                 bio={profileData.bio}
                 interests={profileData.interests}
-                followersCount={profileData.connections?.length || profileData.followers?.length || 0}
-                followingCount={profileData.following.length || 0}
+                followersCount={profileData.connections?.length || profileData.followersCount || profileData.followers?.length || 0}
+                followingCount={profileData.followingCount || profileData.sentRequests?.length || profileData.following?.length || 0}
                 ///////////////////
                 isFollowedByUser={profileData.isFollowedByUser}
                 hasSentRequest={profileData.hasSentRequest}
