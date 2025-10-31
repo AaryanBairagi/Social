@@ -54,6 +54,8 @@ export default function UserProfileView() {
 
       setProfileData({
         ...data,
+        followersCount: data.connections?.length || data.followers?.length || 0,
+        followingCount: data.following?.length || 0,
         isFollowedByUser,
         hasSentRequest,
         hasReceivedRequest,
@@ -125,8 +127,8 @@ export default function UserProfileView() {
                 lastName={profileData.lastName}
                 bio={profileData.bio}
                 interests={profileData.interests}
-                followersCount={profileData.connections?.length || profileData.followersCount || profileData.followers?.length || 0}
-                followingCount={profileData.followingCount || profileData.sentRequests?.length || profileData.following?.length || 0}
+                followersCount={profileData.followersCount}
+                followingCount={profileData.followingCount}
                 ///////////////////
                 isFollowedByUser={profileData.isFollowedByUser}
                 hasSentRequest={profileData.hasSentRequest}
@@ -137,7 +139,7 @@ export default function UserProfileView() {
 
             {/* Posts Section */}
             <div className="bg-white/60 rounded-2xl shadow-md mt-12 p-6 sm:p-10 border border-cyan-100 backdrop-blur-sm flex flex-col w-full transition-all duration-300 hover:shadow-cyan-100/40">
-              {profileData.isFollowing ? (
+              {profileData.isFollowing && profileData.isFollowedByUser ? (
                 <>
                   {loadingPosts ? (
                     <div className="flex flex-col items-center mt-10 space-y-3">
