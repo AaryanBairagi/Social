@@ -55,7 +55,7 @@ export default function UserProfileView() {
       setProfileData({
         ...data,
         followersCount: data.connections?.length || data.followers?.length || 0,
-        followingCount: data.following?.length || 0,
+        followingCount: data.connections?.length+data.sentRequests?.length || 0,
         isFollowedByUser,
         hasSentRequest,
         hasReceivedRequest,
@@ -134,6 +134,17 @@ export default function UserProfileView() {
                 hasSentRequest={profileData.hasSentRequest}
                 hasReceivedRequest={profileData.hasReceivedRequest}
                 showActions={true}
+                onFollowChange={(type) => {
+                setProfileData((prev) => {
+                if (!prev) return prev;
+                if (type === "follow" || type === "accept") {
+                  return { ...prev, followersCount: prev.followersCount + 1, isFollowedByUser: true };
+                } else if (type === "unfollow") {
+                  return { ...prev, followersCount: Math.max(0, prev.followersCount - 1), isFollowedByUser: false };
+                }
+                  return prev;
+                  });
+                }}
               />
             </div>
 

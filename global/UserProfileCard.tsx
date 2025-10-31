@@ -29,6 +29,7 @@ export function UserProfileCard({
   hasSentRequest?: boolean;
   hasReceivedRequest?: boolean;
   showActions?:boolean;
+  onFollowChange? : (type: "follow" | "unfollow" | "accept") => void;
 }) {
   const [followState, setFollowState] = useState({
     isFollowedByUser,
@@ -46,6 +47,7 @@ export function UserProfileCard({
       });
       if (!res.ok) throw new Error("Failed to send follow request");
       setFollowState((prev) => ({ ...prev, hasSentRequest: true }));
+      onFollowChange?.("follow");
     } catch (err) {
       console.error("Follow error:", err);
     }
@@ -60,6 +62,7 @@ export function UserProfileCard({
       });
       if (!res.ok) throw new Error("Failed to unfollow");
       setFollowState({ isFollowedByUser: false, hasSentRequest: false, hasReceivedRequest: false });
+      onFollowChange?.("unfollow");
     } catch (err) {
       console.error("Unfollow error:", err);
     }
@@ -74,6 +77,7 @@ export function UserProfileCard({
       });
       if (!res.ok) throw new Error("Failed to accept request");
       setFollowState({ isFollowedByUser: true, hasSentRequest: false, hasReceivedRequest: false });
+      onFollowChange?.("accept");
     } catch (err) {
       console.error("Accept error:", err);
     }
