@@ -23,12 +23,12 @@ export async function POST(req: NextRequest) {
     );
 
     if (alreadySaved) {
-      // 🔴 UNSAVE
-      post?.savedPostsBy = post?.savedPostsBy?.filter(
+      //UNSAVE
+      post.savedPostsBy = post?.savedPostsBy?.filter(
         (id: mongoose.Types.ObjectId) => !id.equals(userObjectId)
       );
     } else {
-      // 🟢 SAVE
+      //SAVE
       post?.savedPostsBy?.push(userObjectId);
     }
 
