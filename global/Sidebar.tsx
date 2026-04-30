@@ -8,15 +8,14 @@ import {
   SidebarFooter,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { ImagesBadge } from "@/components/ui/images-badge";
+// import { ImagesBadge } from "@/components/ui/images-badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePathname, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
-import { FileText, GraduationCap, MessageCircle, Award, Cog, LifeBuoy, Bell } from "lucide-react";
+import { FileText, GraduationCap, MessageCircle, Cog, LifeBuoy, Bell } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-import { PATCH } from "@/app/api/notifications/route";
 
 export function SideBar() {
   const pathname = usePathname();
@@ -152,7 +151,7 @@ export function SideBar() {
     { name: "Materials", icon: GraduationCap, href: "/coming-soon" },
     { name: "Messages", icon: MessageCircle, href: "/dashboard/messages" },
     { name: "Notifications", icon: Bell, href: "/dashboard/notifications" },
-    { name: "Settings", icon: Cog, href: "/dashboard/settings" },
+    // { name: "Settings", icon: Cog, href: "/dashboard/settings" },
     { name: "Support", icon: LifeBuoy, href: "/contact-us" },
   ];
 

@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import { FileIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type Post = {
   _id: string;
@@ -16,15 +19,18 @@ const isImageUrl = (url: string) =>
   /\.(jpeg|jpg|png|gif|bmp|webp|svg)$/i.test(url);
 
 const PostsComponent: React.FC<PostsComponentProps> = ({ posts }) => {
+    const router = useRouter();
+
   if (!posts || posts.length === 0) {
     return <p className="text-gray-600 italic text-center">No posts available.</p>;
   }
 
   return (
-    <div className="space-y-6">
-      {posts.map((post) => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">     
+   {posts.map((post) => (
         <div
           key={post._id}
+          onClick={() => router.push(`/dashboard/posts/${post._id}`)}
           className="border rounded p-4 bg-white shadow hover:shadow-lg transition max-w-full"
         >
           <p className="mb-2 text-gray-800 whitespace-pre-wrap">{post.description}</p>
@@ -59,6 +65,7 @@ const PostsComponent: React.FC<PostsComponentProps> = ({ posts }) => {
                     rel="noopener noreferrer"
                     className="text-cyan-700 underline font-medium"
                     download
+                    onClick={(e) => e.stopPropagation()}
                   >
                     Download {url.split("/").pop()?.slice(0, 40) || "file"}
                   </a>
