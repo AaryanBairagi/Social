@@ -31,7 +31,15 @@ export default function ChatWindow({ currentUserId, receiver , sharedPost }: any
     if (!currentUserId || !receiver?._id) return;
     fetch(`/api/messages/${receiver._id}`)
       .then((res) => res.json())
-      .then((data) => setMessages(data || []));
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setMessages(data);
+        } else {
+          console.error("Invalid messages response:", data);
+          setMessages([]);
+        }
+      });
+      // .then((data) => setMessages(data || []));
   }, [currentUserId,receiver]);
 
   useEffect(() => {
