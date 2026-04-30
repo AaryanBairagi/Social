@@ -9,8 +9,8 @@ import mongoose from "mongoose";
 export async function GET(req:NextRequest , context : {params : {targetID : string} }){
     try{
         await connectDB();
-        const params = await context.params;
-        const targetID = params.targetID;
+        const { targetID } = context.params;
+        
         if (!mongoose.Types.ObjectId.isValid(targetID)) {
             return NextResponse.json(
             { error: "Invalid target ID" },
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest, context: { params: { targetID: stri
         const { userId } = getAuth(req);
         console.log("User done getAuth" , userId);
 
-        const params = await context.params;
+        const params = context.params;
         const targetID = params.targetID;
         if (!mongoose.Types.ObjectId.isValid(targetID)) {
                 return NextResponse.json(
