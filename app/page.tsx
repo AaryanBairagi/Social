@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { LayoutGrid,Headset,LogIn,InfoIcon,Users2,BookOpenCheck,CalendarDays,ArrowRight, SquareChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import { FaInstagram, FaTwitter, FaGithub, FaLinkedin } from "react-icons/fa";
 
 const World = dynamic(() => import("@/components/ui/globe").then((mod) => mod.World), {
   ssr: false,
@@ -210,16 +211,66 @@ data={[
         </section> 
       </main>
       
-      <hr className="border-black/20 w-full my-4" />
+  <footer className="w-full text-white mt-20 border-t border-cyan-200 bg-black/90 backdrop-blur-md">
 
-      <footer className="w-full text-center py-6 mb-4 text-gray-500 text-sm drop-shadow-sm">
-        &copy; {new Date().getFullYear()} Social. All Rights Reserved.
-        <br />
-        <span className="text-gray-600">
-          Made with ❤️ by <span className="font-medium text-cyan-700">Aaryan Bairagi</span>
-        </span>
-      </footer>
+  {/* TOP ROW */}
+  <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between items-center gap-8">
 
+    {/* LEFT */}
+    <div className="text-center md:text-left">
+      <h2 className="text-xl font-bold text-white/70">Social</h2>
+      <p className="text-sm text-white/60 mt-1">
+        Connect. Collaborate. Grow within your campus.
+      </p>
+    </div>
+
+    {/* RIGHT */}
+    <div className="flex gap-6 text-sm text-white/90">
+      <a href="/features" className="hover:text-cyan-400 transition">Features</a>
+      <a href="/contact-us" className="hover:text-cyan-400 transition">Contact</a>
+      <a href="/learn-more" className="hover:text-cyan-400 transition">About</a>
+    </div>
+
+  </div>
+
+  {/* SOCIAL ROW — EXACT SAME STYLE AS YOUR PAGE */}
+  <div className="flex justify-center gap-6 pb-8">
+
+    <a href="https://github.com/AaryanBairagi" className="p-3 rounded-full bg-white hover:bg-cyan-100 transition shadow-sm hover:shadow-md">
+      <FaGithub className="w-5 h-5 text-zinc-700" />
+    </a>
+
+    <a href="https://www.linkedin.com/in/aaryan-bairagi-183249249/" className="p-3 rounded-full bg-white hover:bg-cyan-100 transition shadow-sm hover:shadow-md">
+      <FaLinkedin className="w-5 h-5 text-blue-500" />
+    </a>
+
+    <a href="https://x.com/aaryanb4real" className="p-3 rounded-full bg-white hover:bg-cyan-100 transition shadow-sm hover:shadow-md">
+      <FaTwitter className="w-5 h-5 text-gray-700" />
+    </a>
+
+    <a href="https://www.instagram.com/aaryanb4real/" className="p-3 rounded-full bg-white hover:bg-cyan-100 transition shadow-sm hover:shadow-md">
+      <FaInstagram className="w-5 h-5 text-pink-600" />
+    </a>
+
+  </div>
+
+  {/* BOTTOM */}
+  <div className="border-t border-cyan-200 text-center py-10 text-sm text-white hover:text-white/90">
+
+    <div>
+      © {new Date().getFullYear()} Social · All Rights Reserved
+    </div>
+
+    <div className="mt-1">
+      Made with <span className="text-red-500">❤️</span> by{" "}
+      <span className="font-medium text-cyan-700">
+        Aaryan Bairagi
+      </span>
+    </div>
+
+  </div>
+
+  </footer>
 
     </div>
   );
