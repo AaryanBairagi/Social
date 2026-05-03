@@ -10,6 +10,7 @@ import {
   GraduationCap,
   Sparkles,
 } from "lucide-react";
+import { FaInstagram, FaTwitter, FaGithub, FaLinkedin } from "react-icons/fa";
 
 function SectionCard({
   icon: Icon,
@@ -49,6 +50,7 @@ function SectionCard({
 
 export default function WhatsNextPage() {
   return (
+    <>
     <main className="min-h-screen bg-gradient-to-b from-white via-cyan-50 to-white px-6 py-16 text-shadow-md">
 
       {/* BACK */}
@@ -185,13 +187,97 @@ export default function WhatsNextPage() {
           Our Vision
         </h2>
 
-        <p className="text-slate-600 leading-7 max-w-4xl">
-          Our goal is to redefine how students connect, collaborate, and grow. Social is not just
-          another platform — it’s the foundation of a smarter, more connected campus ecosystem where
-          every interaction adds value and every connection creates opportunity.
-        </p>
+        <div className="text-slate-600 leading-7 max-w-4xl space-y-4">
+
+  <p>
+    Our goal is to redefine how students connect, collaborate, and grow in a rapidly evolving academic and professional landscape. Social is not just another platform — it’s a purpose-built ecosystem designed to transform everyday student interactions into meaningful opportunities.
+  </p>
+
+  <p>
+    We aim to break down the barriers that often exist within campuses — between juniors and seniors, students and mentors, and even between ideas and execution. By bringing everything into one unified space, Social enables seamless communication, smarter networking, and real-time collaboration.
+  </p>
+
+  <p>
+    Whether it’s finding the right people for a project, discovering opportunities like internships and hackathons, sharing knowledge, or simply building a strong peer network — every interaction on Social is designed to add value.
+  </p>
+
+  <p>
+    We envision a campus where connections are not random but intentional, where collaboration is effortless, and where growth is continuous. A space where students don’t just scroll — they build, engage, and evolve together.
+  </p>
+
+  <p>
+    Social is the foundation of that future — a smarter, more connected campus ecosystem where every connection creates opportunity, and every opportunity drives progress.
+  </p>
+
+</div>
       </section>
 
     </main>
+
+  <div className="bg-black border-t border-cyan-400">
+
+  <section className="w-full text-white mt-5  bg-black backdrop-blur-md">
+
+  {/* TOP ROW */}
+  <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between items-center gap-8">
+
+    {/* LEFT */}
+    <div className="text-center md:text-left">
+      <h2 className="text-xl font-bold text-white/80">Social</h2>
+      <p className="text-sm text-white/80 mt-1">
+        Connect. Collaborate. Grow within your campus.
+      </p>
+    </div>
+
+    {/* RIGHT */}
+    <div className="flex gap-6 text-sm text-white/80">
+      <a href="/features" className="hover:text-cyan-400 transition">Features</a>
+      <a href="/contact-us" className="hover:text-cyan-400 transition">Contact</a>
+      <a href="/learn-more" className="hover:text-cyan-400 transition">About</a>
+    </div>
+
+  </div>
+
+  {/* SOCIAL ROW — EXACT SAME STYLE AS YOUR PAGE */}
+  <div className="flex items-center justify-center gap-6 pb-8">
+    <span className="text-white/70">Follow Us : </span>
+    <a href="https://github.com/AaryanBairagi" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white hover:bg-cyan-100 transition shadow-sm hover:shadow-md">
+      <FaGithub className="w-5 h-5 text-zinc-700" />
+    </a>
+
+    <a href="https://www.linkedin.com/in/aaryan-bairagi-183249249/" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white hover:bg-cyan-100 transition shadow-sm hover:shadow-md">
+      <FaLinkedin className="w-5 h-5 text-blue-500" />
+    </a>
+
+    <a href="https://x.com/aaryanb4real" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white hover:bg-cyan-100 transition shadow-sm hover:shadow-md">
+      <FaTwitter className="w-5 h-5 text-gray-700" />
+    </a>
+
+    <a href="https://www.instagram.com/aaryanb4real/" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white hover:bg-cyan-100 transition shadow-sm hover:shadow-md">
+      <FaInstagram className="w-5 h-5 text-pink-600" />
+    </a>
+
+  </div>
+  </section>
+  <hr className="border-0.5 border-white/60 border-t" />
+  {/* BOTTOM */}
+  <footer className="text-center py-10 text-sm text-white hover:text-white/90">
+
+    <div>
+      © {new Date().getFullYear()} Social · All Rights Reserved
+    </div>
+
+    <div className="mt-1">
+      Made with <span className="text-red-500">❤️</span> by{" "}
+      <span className="font-medium text-cyan-400">
+        Aaryan Bairagi
+      </span>
+    </div>
+
+  </footer>
+
+    </div>
+
+    </>
   );
 }

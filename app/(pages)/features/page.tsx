@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, CalendarDays, CircleCheckBig, FileText, Heart, MessageCircle, ShieldCheck, Sparkles, Users, Upload, Bell, Trophy, FolderOpen, Clock3, SendIcon ,Share } from "lucide-react";
 import { motion } from "framer-motion";
 import { TextRevealCard } from "@/components/ui/text-reveal-card";
+import { FaInstagram, FaTwitter, FaGithub, FaLinkedin } from "react-icons/fa";
 
 function SectionCard({
   title,
@@ -284,6 +285,72 @@ export default function FeaturesPage() {
           </SectionCard>
         </div>
       </main>
+
+
+  <div className="bg-black border-t border-cyan-400">
+
+  <section className="w-full text-white mt-5  bg-black backdrop-blur-md">
+
+  {/* TOP ROW */}
+  <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between items-center gap-8">
+
+    {/* LEFT */}
+    <div className="text-center md:text-left">
+      <h2 className="text-xl font-bold text-white/80">Social</h2>
+      <p className="text-sm text-white/80 mt-1">
+        Connect. Collaborate. Grow within your campus.
+      </p>
+    </div>
+
+    {/* RIGHT */}
+    <div className="flex gap-6 text-sm text-white/80">
+      <a href="/features" className="hover:text-cyan-400 transition">Features</a>
+      <a href="/contact-us" className="hover:text-cyan-400 transition">Contact</a>
+      <a href="/learn-more" className="hover:text-cyan-400 transition">About</a>
+    </div>
+
+  </div>
+
+  {/* SOCIAL ROW — EXACT SAME STYLE AS YOUR PAGE */}
+  <div className="flex items-center justify-center gap-6 pb-8">
+    <span className="text-white/70">Follow Us : </span>
+    <a href="https://github.com/AaryanBairagi" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white hover:bg-cyan-100 transition shadow-sm hover:shadow-md">
+      <FaGithub className="w-5 h-5 text-zinc-700" />
+    </a>
+
+    <a href="https://www.linkedin.com/in/aaryan-bairagi-183249249/" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white hover:bg-cyan-100 transition shadow-sm hover:shadow-md">
+      <FaLinkedin className="w-5 h-5 text-blue-500" />
+    </a>
+
+    <a href="https://x.com/aaryanb4real" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white hover:bg-cyan-100 transition shadow-sm hover:shadow-md">
+      <FaTwitter className="w-5 h-5 text-gray-700" />
+    </a>
+
+    <a href="https://www.instagram.com/aaryanb4real/" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white hover:bg-cyan-100 transition shadow-sm hover:shadow-md">
+      <FaInstagram className="w-5 h-5 text-pink-600" />
+    </a>
+
+  </div>
+  </section>
+  <hr className="border-0.5 border-white/60 border-t" />
+  {/* BOTTOM */}
+  <footer className="text-center py-10 text-sm text-white hover:text-white/90">
+
+    <div>
+      © {new Date().getFullYear()} Social · All Rights Reserved
+    </div>
+
+    <div className="mt-1">
+      Made with <span className="text-red-500">❤️</span> by{" "}
+      <span className="font-medium text-cyan-400">
+        Aaryan Bairagi
+      </span>
+    </div>
+
+  </footer>
+
+    </div>
+
     </div>
   );
 }
