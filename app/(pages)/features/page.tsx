@@ -341,7 +341,7 @@ export default function FeaturesPage() {
     </div>
 
     <div className="mt-1">
-      Made with <span className="text-red-500">❤️</span> by{" "}
+      Made with <span className="text-cyan-500">🩵</span> by{" "}
       <span className="font-medium text-cyan-400">
         Aaryan Bairagi
       </span>
