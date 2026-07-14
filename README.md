@@ -235,51 +235,48 @@ Story                          Contact
 
 ## Project Screenshots
 
-## Authentication
-
-![Authentication](./docs/screenshots/1.png)
-
----
-
-## Home Feed
-
-![Feed](./docs/screenshots/2.png)
-
----
-
-## Create Post
-
-![Create Post](./docs/screenshots/3.png)
-
----
-
-## Connections & 3D Graph
-
-![Connections](./docs/screenshots/4.png)
-
----
-
-## Real-Time Messaging
-
-![Messaging](./docs/screenshots/5.png)
-
----
-
-## Notes & File Workspace
-
-![Notes Workspace](./docs/screenshots/6.png)
-
----
-
-## User Profile
-
-![Profile](./docs/screenshots/7.png)
-
----
-
-## Usage Analytics
-
-![Usage Analytics](./docs/screenshots/8.png)
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./docs/screenshots/1.png" alt="Authentication" width="100%"/>
+      <br/><b>Authentication</b>
+    </td>
+    <td align="center" width="50%">
+      <img src="./docs/screenshots/2.png" alt="Home Feed" width="100%"/>
+      <br/><b>Home Feed</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./docs/screenshots/3.png" alt="Create Post" width="100%"/>
+      <br/><b>Create Post</b>
+    </td>
+    <td align="center" width="50%">
+      <img src="./docs/screenshots/4.png" alt="Connections & 3D Graph" width="100%"/>
+      <br/><b>Connections & 3D Graph</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./docs/screenshots/5.png" alt="Real-Time Messaging" width="100%"/>
+      <br/><b>Real-Time Messaging</b>
+    </td>
+    <td align="center" width="50%">
+      <img src="./docs/screenshots/6.png" alt="Notes & File Workspace" width="100%"/>
+      <br/><b>Notes & File Workspace</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./docs/screenshots/7.png" alt="User Profile" width="100%"/>
+      <br/><b>User Profile</b>
+    </td>
+    <td align="center" width="50%">
+      <img src="./docs/screenshots/8.png" alt="Usage Analytics" width="100%"/>
+      <br/><b>Usage Analytics</b>
+    </td>
+  </tr>
+</table>
 
 ---
 
