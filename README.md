@@ -1,10 +1,23 @@
+<div align="center">
+
 # Social
 
-A full-stack developer-focused social networking platform built to enable users to connect, share technical content, collaborate, and interact through a modern content-driven social ecosystem.
+</div>
 
-Social provides secure authentication, real-time post interactions, media sharing, profile management, and a scalable feed architecture designed using modern full-stack engineering principles.
+<div align="center">
 
-The platform was built from scratch as a production-grade social application using Next.js, Clerk authentication, MongoDB, and Cloudinary.
+**A Real-Time Social Platform for Developers — Connection Graphs, Encrypted Messaging, and a Personal Knowledge Workspace in One App**
+
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com)
+[![Socket.io](https://img.shields.io/badge/Socket.io-Realtime-black?logo=socket.io)](https://socket.io)
+[![Clerk](https://img.shields.io/badge/Auth-Clerk-6C47FF)](https://clerk.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+
+**[Live Demo](#) · [Report Bug](https://github.com/AaryanBairagi/social/issues)**
+
+</div>
 
 ---
 
@@ -13,39 +26,33 @@ The platform was built from scratch as a production-grade social application usi
 * [Overview](#overview)
 * [Platform Architecture](#platform-architecture)
 * [Core Features](#core-features)
-* [Application Workflow](#application-workflow)
-* [Authentication Flow](#authentication-flow)
-* [Content Management System](#content-management-system)
+* [Real-Time Messaging & Encryption](#real-time-messaging--encryption)
+* [Database Schema](#database-schema)
 * [Technology Stack](#technology-stack)
-* [Project Screenshots](#project-screenshots)
 * [Local Development Setup](#local-development-setup)
 * [Environment Variables](#environment-variables)
-* [Deployment](#deployment)
-* [Future Roadmap](#future-roadmap)
+* [Current Status & Known Tradeoffs](#current-status--known-tradeoffs)
+* [Roadmap](#roadmap)
 * [Author](#author)
 
 ---
 
 ## Overview
 
-Social is a modern full-stack social networking platform built specifically for developers, students, and technical communities.
+Social is a full-stack social networking platform built for developers and technical communities — combining a content feed, a bidirectional connection graph, end-to-end encrypted real-time messaging, and a personal notes/file workspace into a single application.
 
-The platform enables authenticated users to:
+Most social-platform side projects stop at "posts + likes + comments." Social goes further into the systems that actually make a platform feel alive:
 
-* Create and share posts
-* Upload media and files
-* Engage through likes and comments
-* Build social connections
-* Explore user-generated content
-* Manage personalized profiles
+| Capability | How it's handled |
+|---|---|
+| Real-time 1:1 messaging | Socket.io with per-message AES-256-GCM encryption |
+| Social graph visualization | An interactive 3D connection globe (`three-globe` + `@react-three/fiber`) alongside a traditional follow/request model |
+| Personal workspace | A notes + file system with folders and an in-app PDF viewer, separate from the public feed |
+| Engagement | Likes, threaded comments, saves, and archiving, all rate-limited per user/action |
+| Retention insight | Session-time tracking with daily/weekly usage analytics |
+| Discovery | A lightweight recommendation engine for suggested connections |
 
-The system emphasizes:
-
-* Scalable feed architecture
-* Secure user authentication
-* Cloud-based media delivery
-* Responsive UI/UX
-* Maintainable modular code structure
+The system is built around a scalable feed and social-graph architecture, with a strong emphasis on component reuse, typed API contracts, and clear service-layer boundaries between routes and data access.
 
 ---
 
@@ -55,309 +62,173 @@ Social is structured as a modular full-stack application composed of several sys
 
 ### Authentication Layer
 
-Handles secure identity and session management using Clerk.
+Handles identity and session management via **Clerk**.
 
 Responsibilities:
-
-* User registration and login
-* Session validation
-* Route protection
-* Authenticated resource access
-* User lifecycle synchronization
-
----
+* Sign up / sign in, session validation, and route protection at the middleware level
+* Synchronizing Clerk identities with a corresponding MongoDB user document
+* Gating all API routes and pages behind a valid session
 
 ### Content Management Layer
 
-Responsible for post creation, editing, deletion, and retrieval.
+Responsible for post creation, editing, retrieval, and lifecycle.
 
 Responsibilities:
+* Post persistence, pagination, and feed generation
+* Like/comment/save/archive state, each independently rate-limited
+* Post metadata (media, timestamps, engagement counts)
 
-* Post persistence
-* Content updates
-* Feed generation
-* Pagination
-* Post metadata management
+### Real-Time Communication Layer
 
----
+Manages live, encrypted messaging between users.
+
+Responsibilities:
+* Socket.io connection lifecycle (join, message, read-receipt events)
+* AES-256-GCM encryption/decryption of message payloads at rest
+* Unread-count tracking and read-state synchronization across sessions
+
+### Social Graph Layer
+
+Manages connections and discovery between users.
+
+Responsibilities:
+* Follow requests: send / accept / reject / cancel / unfollow
+* Bidirectional connection state with cached request lists
+* An interactive 3D visualization of a user's connection graph
+* Lightweight recommendation logic for "people you may know"
+
+### Personal Workspace Layer
+
+A private, non-social space for the user's own content.
+
+Responsibilities:
+* Folder-organized notes and file uploads
+* In-app PDF rendering for uploaded documents
+* Isolated from the public feed — visible only to its owner
 
 ### Media Storage Layer
 
-Handles file uploads and cloud asset management.
+Handles file uploads and cloud asset delivery via **Cloudinary**.
 
 Responsibilities:
-
-* Media upload processing
-* Cloudinary asset storage
-* Secure file delivery
-* Download link generation
-* Media optimization
-
----
-
-### Social Interaction Layer
-
-Manages engagement between users.
-
-Responsibilities:
-
-* Likes
-* Comments
-* User connections
-* Follow system
-* Interaction persistence
-
----
+* Media upload processing and optimization
+* Secure delivery URLs and CDN distribution
 
 ### Database Layer
 
-Handles persistent application state.
+Handles persistent application state via **MongoDB / Mongoose**.
 
-Stores:
-
-* User profiles
-* Posts
-* Comments
-* Likes
-* Follower relationships
-* Media references
+Stores: user profiles, posts, comments, connections, notes, chat messages, notifications, stories, and usage records.
 
 ---
 
 ## Core Features
 
-## Secure Authentication
+### Dynamic Social Feed
+Text and media posts with likes, threaded comments, saves, and archiving — each action independently rate-limited to prevent abuse.
 
-Authentication is powered by Clerk.
+### Connection System with 3D Visualization
+A traditional follow/request/accept model paired with an interactive 3D globe rendering of a user's connection graph, built with `three-globe` and `@react-three/fiber`.
 
-Features:
+### Encrypted Real-Time Messaging
+Socket.io-powered 1:1 chat with AES-256-GCM encryption applied per message before persistence, plus read-receipts and live unread counts.
 
-* Secure sign up / sign in
-* Session persistence
-* Protected routes
-* User identity management
+### Personal Notes & File Workspace
+A folder-based notes system with file uploads and an embedded PDF viewer — a private workspace layered on top of the social platform rather than a separate feature.
 
----
+### Notifications
+Event-driven notifications for follow requests, accepted connections, and engagement, with a read/unread state.
 
-## Dynamic Social Feed
+### Usage Analytics
+Client-side session tracking (via `navigator.sendBeacon` on unload) feeding daily and weekly time-spent charts, rendered with `recharts`.
 
-A scalable content feed system with efficient post retrieval.
+### Recommendations
+A lightweight "suggested connections" engine surfaced on the dashboard.
 
-Capabilities:
-
-* Real-time content rendering
-* Infinite scroll
-* View older posts pagination
-* Feed updates
-
----
-
-## Post Creation System
-
-Users can publish content-rich posts.
-
-Supports:
-
-* Text posts
-* Image uploads
-* File attachments
-* Post editing
-* Post deletion
+### Events
+User-created events with save/RSVP-style interactions.
 
 ---
 
-## Real-Time Engagement
+## Real-Time Messaging & Encryption
 
-Interactive social features.
+Message content is encrypted with **AES-256-GCM** before it's written to MongoDB — the database never holds plaintext message bodies. Socket.io handles delivery and presence; encryption/decryption happens at the application boundary, keyed off a server-held secret (`CHAT_ENCRYPTION_KEY`, a 32-byte key never exposed to the client).
 
-Includes:
-
-* Likes
-* Comment threads
-* Engagement updates
-* User activity interactions
+```
+Client A ──(plaintext)──▶ API/Socket layer ──AES-256-GCM encrypt──▶ MongoDB
+MongoDB ──ciphertext──▶ API/Socket layer ──AES-256-GCM decrypt──▶ Client B
+```
 
 ---
 
-## Profile Management
+## Database Schema
 
-User-controlled profile customization.
+```
+User ──────────┬──────────── Post ─────────────── Comment
+│ firstName     │            │ user → User        │ post → Post
+│ lastName      │            │ content             │ user → User
+│ userId        │            │ media               │ textMessage
+│ email         │            │ likes[] → User       
+│ password      │            │ savedPostsBy[]       
+│ bio           │            │ isArchived           
+│ interests[]   │                                   
+│ socialLinks   │            Connection             Notification
+│ connections[] │──────────▶ │ requester → User     │ userId → User
+│ sentRequests[]│            │ recipient → User     │ actorId → User
+│ receivedReq[] │            │ status                │ type
+                             
+Chat                          Note                    Usage
+│ sender → User                │ user → User          │ user → User
+│ recipient → User             │ fileUrl               │ date
+│ ciphertext (AES-256-GCM)     │ description           │ timeSpent
+│ iv, authTag                  │ folder
+│ read (bool)                  
 
-Capabilities:
-
-* Profile editing
-* User information updates
-* Activity tracking
-* Social visibility
-
----
-
-## Cloud Media Management
-
-Integrated Cloudinary storage system.
-
-Features:
-
-* Optimized media uploads
-* Secure delivery URLs
-* Fast CDN distribution
-* Download support
-
----
-
-## Application Workflow
-
-### 1. User Authentication
-
-User signs in through Clerk authentication.
-
----
-
-### 2. Profile Initialization
-
-User profile is synchronized with MongoDB.
-
----
-
-### 3. Content Publishing
-
-Users create posts and upload media.
-
----
-
-### 4. Feed Distribution
-
-Posts are persisted and surfaced across user feeds.
-
----
-
-### 5. Social Engagement
-
-Other users interact through:
-
-* Likes
-* Comments
-* Profile visits
-* Connections
-
----
-
-### 6. Content Retrieval
-
-Feed pagination enables efficient browsing.
-
----
-
-## Authentication Flow
-
-Social uses Clerk for authentication orchestration.
-
-Flow:
-
-1. User initiates authentication
-2. Clerk validates identity
-3. Session is established
-4. User data is synchronized
-5. Protected routes become accessible
-6. Session persists securely
-
----
-
-## Content Management System
-
-The platform supports complete content lifecycle management.
-
-### Post Lifecycle
-
-* Create post
-* Attach media
-* Persist to database
-* Render in feed
-* Update engagement state
-* Edit/delete content
+Story                          Contact
+│ user → User                  │ name, email, message
+│ mediaUrl
+│ expiresAt
+```
 
 ---
 
 ## Technology Stack
 
-## Frontend
+### Frontend
 
-* Next.js (App Router)
-* React
-* TypeScript
-* Tailwind CSS
+| Technology | Purpose |
+|---|---|
+| [Next.js](https://nextjs.org) (App Router) | Full-stack React framework |
+| [React](https://react.dev) | UI component library |
+| [TypeScript](https://www.typescriptlang.org) | Type-safe development |
+| [Tailwind CSS](https://tailwindcss.com) | Utility-first styling |
+| [Radix UI](https://www.radix-ui.com) | Accessible unstyled primitives (dialogs, tabs, tooltips) |
+| [Framer Motion](https://www.framer.com/motion) / [Motion](https://motion.dev) | UI animation |
+| [@react-three/fiber](https://docs.pmnd.rs/react-three-fiber) + [three-globe](https://github.com/vasturiano/three-globe) | 3D connection graph visualization |
+| [Recharts](https://recharts.org) | Usage analytics charts |
+| [React PDF Viewer](https://react-pdf-viewer.dev) | In-app document rendering |
 
----
+### Backend
 
-## Backend
+| Technology | Purpose |
+|---|---|
+| [Next.js API Routes](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) | Serverless API endpoints |
+| [Socket.io](https://socket.io) | Real-time bidirectional messaging |
+| [Node.js `crypto`](https://nodejs.org/api/crypto.html) | AES-256-GCM message encryption |
+| [Clerk](https://clerk.com) | Authentication & session management |
 
-* Next.js API Routes
-* Node.js
+### Database & Storage
 
----
+| Technology | Purpose |
+|---|---|
+| [MongoDB](https://www.mongodb.com) + [Mongoose](https://mongoosejs.com) | Primary document database |
+| [Cloudinary](https://cloudinary.com) | Media upload, optimization, and CDN delivery |
 
-## Database
+### Infrastructure
 
-* MongoDB
-* Mongoose ODM
-
----
-
-## Infrastructure
-
-* Clerk Authentication
-* Cloudinary
-* Vercel Deployment
-
----
-
-## Project Screenshots
-
-## Authentication
-
-![Authentication](./docs/screenshots/1.png)
-
----
-
-## Home Feed
-
-![Feed](./docs/screenshots/2.png)
-
----
-
-## Create Post
-
-![Create Post](./docs/screenshots/3.png)
-
----
-
-## User Profile
-
-![Profile](./docs/screenshots/4.png)
-
----
-
-## Comments System
-
-![Comments](./docs/screenshots/5.png)
-
----
-
-## File Upload Flow
-
-![Uploads](./docs/screenshots/6.png)
-
----
-
-## Feed Pagination
-
-![Pagination](./docs/screenshots/7.png)
-
----
-
-## Responsive UI
-
-![Responsive](./docs/screenshots/8.png)
+* In-memory rate limiting (per `user:action` key) on write-heavy routes (likes, connections, notes)
+* In-memory request caching for hot read paths (e.g. pending connection requests)
+* [Vercel](https://vercel.com) deployment target
 
 ---
 
@@ -382,6 +253,8 @@ npm install
 npm run dev
 ```
 
+Visit `http://localhost:3000`.
+
 ---
 
 ## Environment Variables
@@ -389,47 +262,55 @@ npm run dev
 Create a `.env.local` file:
 
 ```env
+# Clerk
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
 
-MONGODB_URI=
+# Database
+MONGO_URI=
 
+# Cloudinary
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
+
+# Messaging encryption (64-char hex string = 32 bytes)
+CHAT_ENCRYPTION_KEY=
 ```
 
 ---
 
-## Deployment
+## Current Status & Known Tradeoffs
 
-Production deployment requires:
+Built as a demonstration of end-to-end social-platform engineering — real-time systems, encryption, social-graph modeling, and 3D visualization — rather than a production-hardened deployment. In the interest of an honest project writeup:
 
-* Clerk production configuration
-* MongoDB production cluster
-* Cloudinary production credentials
-* Environment variable setup
-* Vercel deployment configuration
-
-Recommended stack:
-
-* Vercel
-* MongoDB Atlas
-* Clerk
-* Cloudinary
+| Feature | Status |
+|---|---|
+| Post feed, likes, comments, saves, archiving | ✅ Implemented |
+| Follow/connection system with request states | ✅ Implemented |
+| 3D connection graph visualization | ✅ Implemented |
+| Real-time messaging (Socket.io) | ✅ Implemented |
+| AES-256-GCM message encryption at rest | ✅ Implemented |
+| Notes/file workspace with PDF viewer | ✅ Implemented |
+| Usage analytics (daily/weekly) | ✅ Implemented |
+| Per-action rate limiting | ✅ Implemented |
+| Authentication | ✅ Clerk (managed) — a custom JWT-based auth layer is planned; see [Roadmap](#roadmap) |
+| Socket.io connection authentication | ⚠️ Not yet enforced at the transport layer |
+| Rate limiting / caching persistence | ⚠️ In-memory — resets on server restart, not multi-instance safe |
+| Automated test coverage | ❌ Not yet implemented |
 
 ---
 
-## Future Roadmap
+## Roadmap
 
-* Real-time notifications
-* Direct messaging
-* Advanced search
-* Post bookmarking
-* Content recommendations
-* Community groups
-* Activity analytics
-* Progressive Web App support
+* [ ] Replace Clerk with a self-implemented JWT authentication system (access/refresh token rotation, httpOnly cookies, bcrypt password hashing) to bring auth in-house
+* [ ] Authenticate Socket.io connections via JWT handshake verification
+* [ ] Move rate limiting and caching to Redis for multi-instance correctness
+* [ ] Add automated tests around auth, messaging, and the connection request state machine
+* [ ] Direct message read-receipts UI polish
+* [ ] Post bookmarking collections
+* [ ] Content recommendation ranking beyond simple suggestion logic
+* [ ] Progressive Web App support
 
 ---
 
@@ -437,9 +318,9 @@ Recommended stack:
 
 Built by **Aaryan Bairagi**
 
-Social was built to explore large-scale social application architecture, secure authentication systems, media delivery infrastructure, and modern full-stack engineering patterns.
+Social was built to explore real-time system design, applied cryptography, social-graph data modeling, and 3D data visualization within a modern full-stack application.
 
-GitHub: https://github.com/AaryanBairagi
+GitHub: [https://github.com/AaryanBairagi](https://github.com/AaryanBairagi)
 
 ---
 
@@ -447,6 +328,4 @@ GitHub: https://github.com/AaryanBairagi
 
 Copyright © 2026 Aaryan Bairagi
 
-All rights reserved.
-
-Unauthorized copying, modification, distribution, or commercial use of this software is prohibited without explicit permission.
+All rights reserved. Unauthorized copying, modification, distribution, or commercial use of this software is prohibited without explicit permission.
