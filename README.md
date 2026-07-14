@@ -59,6 +59,8 @@ The system is built around a scalable feed and social-graph architecture, with a
 
 ## Platform Architecture
 
+![Social Architecture](./docs/screenshots/architecture-social.png)
+
 Social is structured as a modular full-stack application composed of several system layers.
 
 ### Authentication Layer
