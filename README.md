@@ -238,8 +238,8 @@ Story                          Contact
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="./docs/screenshots/1.png" alt="Authentication" width="100%"/>
-      <br/><b>Authentication</b>
+      <img src="./docs/screenshots/1.png" alt="Landing Page" width="100%"/>
+      <br/><b>Landing Page</b>
     </td>
     <td align="center" width="50%">
       <img src="./docs/screenshots/2.png" alt="Home Feed" width="100%"/>
@@ -248,11 +248,11 @@ Story                          Contact
   </tr>
   <tr>
     <td align="center" width="50%">
-      <img src="./docs/screenshots/3.png" alt="Create Post" width="100%"/>
+      <img src="./docs/screenshots/4.png" alt="Create Post" width="100%"/>
       <br/><b>Create Post</b>
     </td>
     <td align="center" width="50%">
-      <img src="./docs/screenshots/4.png" alt="Connections & 3D Graph" width="100%"/>
+      <img src="./docs/screenshots/3.png" alt="Connections & 3D Graph" width="100%"/>
       <br/><b>Connections & 3D Graph</b>
     </td>
   </tr>
@@ -262,18 +262,18 @@ Story                          Contact
       <br/><b>Real-Time Messaging</b>
     </td>
     <td align="center" width="50%">
-      <img src="./docs/screenshots/6.png" alt="Notes & File Workspace" width="100%"/>
-      <br/><b>Notes & File Workspace</b>
+      <img src="./docs/screenshots/6.png" alt="Share Post" width="100%"/>
+      <br/><b>Share Post</b>
     </td>
   </tr>
   <tr>
     <td align="center" width="50%">
-      <img src="./docs/screenshots/7.png" alt="User Profile" width="100%"/>
-      <br/><b>User Profile</b>
+      <img src="./docs/screenshots/7.png" alt="Twitter" width="100%"/>
+      <br/><b>Twitter</b>
     </td>
     <td align="center" width="50%">
       <img src="./docs/screenshots/8.png" alt="Usage Analytics" width="100%"/>
-      <br/><b>Usage Analytics</b>
+      <br/><b>Real-Time Notifications</b>
     </td>
   </tr>
 </table>
