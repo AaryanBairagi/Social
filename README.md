@@ -29,6 +29,7 @@
 * [Real-Time Messaging & Encryption](#real-time-messaging--encryption)
 * [Database Schema](#database-schema)
 * [Technology Stack](#technology-stack)
+* [Project Screenshots](#project-screenshots)
 * [Local Development Setup](#local-development-setup)
 * [Environment Variables](#environment-variables)
 * [Current Status & Known Tradeoffs](#current-status--known-tradeoffs)
@@ -229,6 +230,56 @@ Story                          Contact
 * In-memory rate limiting (per `user:action` key) on write-heavy routes (likes, connections, notes)
 * In-memory request caching for hot read paths (e.g. pending connection requests)
 * [Vercel](https://vercel.com) deployment target
+
+---
+
+## Project Screenshots
+
+## Authentication
+
+![Authentication](./docs/screenshots/1.png)
+
+---
+
+## Home Feed
+
+![Feed](./docs/screenshots/2.png)
+
+---
+
+## Create Post
+
+![Create Post](./docs/screenshots/3.png)
+
+---
+
+## Connections & 3D Graph
+
+![Connections](./docs/screenshots/4.png)
+
+---
+
+## Real-Time Messaging
+
+![Messaging](./docs/screenshots/5.png)
+
+---
+
+## Notes & File Workspace
+
+![Notes Workspace](./docs/screenshots/6.png)
+
+---
+
+## User Profile
+
+![Profile](./docs/screenshots/7.png)
+
+---
+
+## Usage Analytics
+
+![Usage Analytics](./docs/screenshots/8.png)
 
 ---
 
