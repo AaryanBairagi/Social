@@ -19,10 +19,7 @@ export interface IUser {
     instagram?: string;
   };
   isVerified?: boolean;
-  password?: string;
-  // connections?:string[];
-  // sentRequests?:string[];
-  // receivedRequests?:string[];
+  password: string;
 }
 
 export interface IUserDocument extends IUser, mongoose.Document {
@@ -37,7 +34,7 @@ const userSchema = new mongoose.Schema(
     userId: { type: String, required: true, unique: true, lowercase: true, trim: true },
     clerkId: { type: String, unique: true, sparse: true }, // unique for Clerk users
     email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: function() { return !this.clerkId; }, minlength: 6 },
+    password: { type: String, required: true, minlength: 6 },
     profilePhoto: { type: String, default: "/default-avatar.png" },
     bio: { type: String, maxlength: 200 },
     college: { type: String, trim: true },
@@ -46,9 +43,6 @@ const userSchema = new mongoose.Schema(
     interests: [String],
     socialLinks: { linkedin: String, github: String, twitter: String, instagram: String },
     isVerified: { type: Boolean, default: false },
-    // connections:[{ type:mongoose.Schema.Types.ObjectId , ref:"User"}],
-    // sentRequests:[{ type:mongoose.Schema.Types.ObjectId , ref:"User" }],
-    // receivedRequests:[{ type:mongoose.Schema.Types.ObjectId , ref:"User"}]
   },
   { timestamps: true,
     collection:"User"
