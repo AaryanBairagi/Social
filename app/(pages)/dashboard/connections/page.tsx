@@ -1,19 +1,19 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { useUser } from "@clerk/nextjs";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users, UserCheck, Search } from "lucide-react";
 import { UserCard } from "../../../../global/UserCard";
 import { UserProfileCard } from "@/global/UserProfileCard";
 import ConnectionGraph from "@/global/ConnectionGraph";
+import { useAuth } from "@/contexts/AuthContext";
 
 type ConnectionUser = {
   _id: string;
   firstName: string;
   lastName: string;
-  userId: string;
+  username: string;
   profilePhoto?: string;
   bio?: string;
   interests?: string[];
@@ -45,7 +45,7 @@ type EdgeUserRef =
       _id: string;
       firstName?: string;
       lastName?: string;
-      userId?: string;
+      username?: string;
       profilePhoto?: string;
       bio?: string;
       interests?: string[];
@@ -61,13 +61,12 @@ type ConnectionEdge = {
 };
 
 export default function ConnectionsPage() {
-  const { user, isSignedIn, isLoaded } = useUser();
+  const { user, isAuthenticated, loading } = useAuth();
 
   const [mongoUserId, setMongoUserId] = useState<string | null>(null);
   const [followers, setFollowers] = useState<ConnectionUser[]>([]);
   const [following, setFollowing] = useState<ConnectionUser[]>([]);
   const [discoverUsers, setDiscoverUsers] = useState<ConnectionUser[]>([]);
-  // const [loading, setLoading] = useState<"followers" | "following" | "discover" | "requests" | null>(null);
   const [connectionsLoading, setConnectionsLoading] = useState(false);
   const [profileUser, setProfileUser] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -85,7 +84,7 @@ export default function ConnectionsPage() {
 
   useEffect(() => {
     async function fetchMongoUserId() {
-      if (!isSignedIn) return;
+      if (!isAuthenticated) return;
       try {
         const res = await fetch("/api/user/getId");
         if (!res.ok) throw new Error("Failed to fetch user ID");
@@ -97,7 +96,7 @@ export default function ConnectionsPage() {
     }
 
     fetchMongoUserId();
-  }, [isSignedIn]);
+  }, [isAuthenticated]);
 
   const enhanceUsersWithFlags = (
     users: ConnectionUser[],
@@ -116,7 +115,7 @@ export default function ConnectionsPage() {
   const normalizeEdgeUser = (userRef?: EdgeUserRef): ConnectionUser | null => {
     if (!userRef || typeof userRef === "string") return null;
 
-    if (!userRef._id || !userRef.userId || !userRef.firstName || !userRef.lastName) {
+    if (!userRef._id || !userRef.username || !userRef.firstName || !userRef.lastName) {
       return null;
     }
 
@@ -124,7 +123,7 @@ export default function ConnectionsPage() {
       _id: userRef._id,
       firstName: userRef.firstName,
       lastName: userRef.lastName,
-      userId: userRef.userId,
+      username: userRef.username,
       profilePhoto: userRef.profilePhoto,
       bio: userRef.bio,
       interests: userRef.interests,
@@ -140,22 +139,20 @@ export default function ConnectionsPage() {
     setConnectionsLoading(true);
 
     try {
-      const [followersRes, followingRes, requestsRes, profileRes] = await Promise.all([
+      const [followersRes, followingRes, requestsRes] = await Promise.all([
         fetch(`/api/connections/${mongoUserId}/followers`),
         fetch(`/api/connections/${mongoUserId}/following`),
         fetch(`/api/connections/requests`),
-        fetch(`/api/user/profile?clerkId=${user?.id}`),
       ]);
 
-      if (!followersRes.ok || !followingRes.ok || !requestsRes.ok || !profileRes.ok) {
+      if (!followersRes.ok || !followingRes.ok || !requestsRes.ok) {
         throw new Error("Failed to fetch all data");
       }
 
-      const [followersData, followingData, requestsData, profileData] = await Promise.all([
+      const [followersData, followingData, requestsData] = await Promise.all([
         followersRes.json(),
         followingRes.json(),
         requestsRes.json(),
-        profileRes.json(),
       ]);
 
       const followersList: ConnectionUser[] = followersData.followers || followersData || [];
@@ -242,10 +239,8 @@ export default function ConnectionsPage() {
         return enhancedReceivedUsers;
       });
 
-      setProfileUser((current: any) => {
-        if (JSON.stringify(current) === JSON.stringify(profileData)) return current;
-        return profileData;
-      });
+      setProfileUser(user);
+
     } catch {
       setFollowers([]);
       setFollowing([]);
@@ -258,7 +253,7 @@ export default function ConnectionsPage() {
       setConnectionsLoading(false);
       setProfileLoading(false);
     }
-  }, [mongoUserId, user?.id]);
+  }, [mongoUserId, user]);
 
   useEffect(() => {
     async function fetchDiscoverUsers() {
@@ -266,7 +261,7 @@ export default function ConnectionsPage() {
 
       setDiscoverLoading(true);
       try {
-        const res = await fetch(`/api/fetchusers?excludeId=${mongoUserId}`);
+        const res = await fetch("/api/fetchusers");
         if (!res.ok) throw new Error("Failed to fetch discover users");
         const data: ConnectionUser[] = await res.json();
 
@@ -322,14 +317,14 @@ export default function ConnectionsPage() {
   };
 
   useEffect(() => {
-    if (isLoaded && isSignedIn && mongoUserId) {
+    if (!loading && isAuthenticated && mongoUserId) {
       fetchConnectionData();
     }
-  }, [isLoaded, isSignedIn, mongoUserId, fetchConnectionData]);
+  }, [loading, isAuthenticated, mongoUserId, fetchConnectionData]);
 
   const placeholderCount = 3;
 
-  if (!isLoaded) {
+  if (loading) {
     return (
       <main className="max-w-xl mx-auto p-6 space-y-6 animate-pulse">
         <Skeleton className="h-12 w-44" />
@@ -340,7 +335,7 @@ export default function ConnectionsPage() {
     );
   }
 
-  if (!isSignedIn) {
+  if (!isAuthenticated) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="bg-red-100 p-10 rounded text-red-700 font-semibold">
@@ -417,7 +412,7 @@ const loadGraph = async() => {
           profileUser && (
             <UserProfileCard
               mongoId={mongoUserId || ""}
-              userId={profileUser.userId}
+              username={profileUser.username}
               firstName={profileUser.firstName}
               lastName={profileUser.lastName}
               profilePhoto={profileUser.profilePhoto}

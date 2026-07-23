@@ -191,8 +191,9 @@ const PostDialog = ({
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFiles((prev) => [...prev, ...Array.from(e.target.files)]);
+    const selectedFiles = e.target.files;
+    if (selectedFiles && selectedFiles.length > 0) {
+      setFiles((prev) => [...prev, ...Array.from(selectedFiles)]);
       setError(null);
     }
   };

@@ -150,7 +150,7 @@ export default function ChatWindow({ currentUserId, receiver , sharedPost }: any
 
     <header 
       className="flex items-center gap-3 bg-black/90 px-4 py-3 border-b"
-      onClick={() => router.push(`/profile/${receiver.userId}`)}
+      onClick={() => router.push(`/profile/${receiver.username}`)}
     >
       <img
         src={receiver.profilePhoto || "/User-Prof.png"}
@@ -162,7 +162,7 @@ export default function ChatWindow({ currentUserId, receiver , sharedPost }: any
           {receiver.firstName} {receiver.lastName}
         </span>
         <span className="text-xs text-white/80">
-          @{receiver.userId}
+          @{receiver.username}
         </span>
       </div>
     </header>
@@ -267,7 +267,7 @@ export default function ChatWindow({ currentUserId, receiver , sharedPost }: any
 
       <div className="text-sm">
         <div className="font-medium text-gray-800">
-          @{sharedPost.user?.userId}
+          @{sharedPost.user?.username}
         </div>
         <div className="text-xs text-gray-500 line-clamp-1">
           {sharedPost.description}

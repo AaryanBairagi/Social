@@ -1,7 +1,7 @@
 import { connectDB } from "@/lib/db";
 import { getRecommendedUsersForUser } from "@/lib/recommendation";
 import { User } from "@/models/user.model";
-import { getAuth } from "@clerk/nextjs/server";
+import { getAuth } from "@/lib/auth/getAuth";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -11,13 +11,13 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
 
-    const { userId: clerkId } = getAuth(req);
+    const { userId } = await getAuth(req);
 
-    if (!clerkId) {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const currentUser = await User.findOne({ clerkId }).select("_id");
+    const currentUser = await User.findById(userId);
     if (!currentUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }

@@ -61,7 +61,7 @@ export async function getExcludedUserIds(userId: ObjectIdLike): Promise<string[]
   ]);
 }
 
-export async function getMutualConnectionIds(userAId : ObjectIdLike , userBId : ObjectIdLike) : Promise<String[]>{
+export async function getMutualConnectionIds(userAId : ObjectIdLike , userBId : ObjectIdLike) : Promise<string[]>{
     const [userANeighbors , userBNeighbors] = await Promise.all([getAcceptedNeighborIds(userAId),getAcceptedNeighborIds(userBId)]);
     const userBSet = new Set(userBNeighbors);
     return userANeighbors.filter((id)=> userBSet.has(id));

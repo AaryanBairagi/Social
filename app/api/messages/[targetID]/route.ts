@@ -2,7 +2,7 @@ import { Decryption, Encryption } from "@/lib/chat-crypto";
 import { connectDB } from "@/lib/db";
 import { Message } from "@/models/chat.model";
 import { User } from "@/models/user.model";
-import { getAuth } from "@clerk/nextjs/server";
+import { getAuth } from "@/lib/auth/getAuth";
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 
@@ -25,13 +25,13 @@ export async function GET(
 
     const targetObjectId = new mongoose.Types.ObjectId(targetID);
 
-    const { userId } = getAuth(req);
+    const { userId } = await getAuth(req);
 
     if (!userId) {
       return NextResponse.json([], { status: 200 });
     }
 
-    const user = await User.findOne({ clerkId: userId });
+    const user = await User.findById(userId);
     if (!user) {
       return NextResponse.json([], { status: 200 });
     }
@@ -46,7 +46,7 @@ export async function GET(
         path: "post",
         populate: {
           path: "user",
-          select: "firstName lastName userId profilePhoto",
+          select: "firstName lastName username profilePhoto",
         },
       })
       .sort({ createdAt: 1 });
@@ -110,13 +110,13 @@ export async function POST(
 
     const targetObjectId = new mongoose.Types.ObjectId(targetID);
 
-    const { userId } = getAuth(req);
+    const { userId } = await getAuth(req);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const senderUser = await User.findOne({ clerkId: userId });
+    const senderUser = await User.findById(userId);
     if (!senderUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }

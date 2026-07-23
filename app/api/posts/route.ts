@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
     }
 
     const posts = await Post.find(query)
-      .populate("user", "firstName lastName userId profilePhoto")
+      .populate("user", "firstName lastName username profilePhoto")
       .sort({ createdAt: -1 })
       .limit(limit);
 

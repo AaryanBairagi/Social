@@ -15,11 +15,12 @@ export async function GET(req:NextRequest){
     const users = await User.find({
         $or : [
             //search by userId or username or lastname
+            {username : regex},
             {userId : regex},
-            {firstName: regex},
+            {firstName : regex},
             {lastName : regex}
         ]
-    }).select("_id userId firstName lastName profilePhoto").limit(20).lean();
+    }).select("_id username firstName lastName profilePhoto").limit(20).lean();
 
     return NextResponse.json(users,{status:200});
     }catch(error){

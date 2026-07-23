@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
 import { ArrowLeft, Download, Edit, Trash, X } from "lucide-react";
 import SectionHeader from "@/global/SectionHeader";
 import { FileText } from "lucide-react";
@@ -16,6 +15,7 @@ const Viewer = dynamic(
 );
 
 import "@react-pdf-viewer/core/lib/styles/index.css";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Note = {
   _id: string;
@@ -27,9 +27,9 @@ type Note = {
 };
 
 export default function NotesPage() {
-  const { user, isLoaded, isSignedIn } = useUser();
+  const { user, loading, isAuthenticated } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [notesLoading, setNotesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mounted , setMounted] = useState(false);
   const [notesByFolder, setNotesByFolder] = useState<{ [folder: string]: Note[] }>({});
@@ -43,13 +43,13 @@ export default function NotesPage() {
   const [fileContent, setFileContent] = useState<string>("");
 
   useEffect(() => {
-    if (!isLoaded || !isSignedIn || !user) return;
+    if (loading || !isAuthenticated || !user) return;
 
     async function fetchNotes() {
-      setLoading(true);
+      setNotesLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/notes/${user?.id}`);
+        const res = await fetch(`/api/notes/${user?._id}`);
         if (!res.ok) throw new Error("Failed to fetch your notes");
         const data = await res.json();
         setNotes(data);
@@ -65,12 +65,12 @@ export default function NotesPage() {
       } catch (err: any) {
         setError(err.message || "Failed to load notes.");
       } finally {
-        setLoading(false);
+        setNotesLoading(false);
       }
     }
 
     fetchNotes();
-  }, [isLoaded, isSignedIn, user]);
+  }, [loading, isAuthenticated, user]);
 
   useEffect(()=>{
     setMounted(true);
@@ -89,7 +89,7 @@ export default function NotesPage() {
 
 
 
-  if (!isSignedIn) {
+  if (!loading && !isAuthenticated) {
     return (
       <div className="text-center text-red-600 mt-20 font-semibold">
         Please sign in to view your notes.
@@ -97,7 +97,7 @@ export default function NotesPage() {
     );
   }
 
-  if (loading) {
+  if (notesLoading) {
     return (
       <div className="flex justify-center items-center min-h-[70vh]">
         <svg className="animate-spin h-12 w-12 text-cyan-600" viewBox="0 0 24 24" fill="none">
@@ -133,10 +133,10 @@ export default function NotesPage() {
   }
 
   async function fetchNotes() {
-    setLoading(true);
+    setNotesLoading(true);
     setError(null);
       try {
-        const res = await fetch(`/api/notes/${user?.id}`);
+        const res = await fetch(`/api/notes/${user?._id}`);
         if (!res.ok) throw new Error("Failed to fetch your notes");
         const data = await res.json();
         setNotes(data);
@@ -152,7 +152,7 @@ export default function NotesPage() {
       } catch (err: any) {
         setError(err.message || "Failed to load notes.");
       } finally {
-        setLoading(false);
+        setNotesLoading(false);
       }
   }
 
@@ -161,7 +161,7 @@ export default function NotesPage() {
     try{ 
     if(!editNote) return;
 
-    await fetch(`/api/notes/${user?.id}/${editNote._id}`,{
+    await fetch(`/api/notes/${user?._id}/${editNote._id}`,{
       method:"PATCH",
       headers: {"Content-Type" : "application/json"},
       body: JSON.stringify({
@@ -320,7 +320,7 @@ export default function NotesPage() {
 
         <button
           onClick={async () => {
-            await fetch(`/api/notes/${user.id}/${deleteNoteId}`, {
+            await fetch(`/api/notes/${user?._id}/${deleteNoteId}`, {
               method: "DELETE",
             });
 

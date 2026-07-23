@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
       user: { $in: storyUserIds },
       expiresAt: { $gt: new Date() },
     })
-      .populate("user", "firstName lastName userId profilePhoto")
+      .populate("user", "firstName lastName username profilePhoto")
       .sort({ createdAt: -1 });
 
     return NextResponse.json(stories);

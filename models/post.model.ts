@@ -7,13 +7,13 @@ export interface IPost{
     user:IUser,
     imageUrls?:string[],
     fileNames?:string[],
-    likes?:string[],
-    comments?: mongoose.Types.ObjectId[] | IComment[];
-    type?: "post" | "event",
-    eventDate?: Date,
-    savedBy?: string[],
+    likes?:mongoose.Types.ObjectId[];    
+    comments?: (mongoose.Types.ObjectId | IComment)[];    
+    type?:"post" | "event",
+    eventDate?:Date,
+    savedBy?:string[],
     isArchived?:boolean,
-    savedPostsBy?: mongoose.Types.ObjectId[] ;
+    savedPostsBy?:mongoose.Types.ObjectId[];
 }
 
 export interface IPostDocument extends IPost , Document{

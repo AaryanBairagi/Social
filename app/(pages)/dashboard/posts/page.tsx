@@ -1,29 +1,16 @@
 "use client"
 import React, { useEffect } from 'react'
 import Posts from '../_components/Posts'
-import { useUser } from '@clerk/nextjs'
+import { useAuth } from "@/contexts/AuthContext";
 
 const Page  = () => {
     const [currentUserId , setCurrentUserId] = React.useState<string>("");
-    const { user } = useUser();
+
+    const { user } = useAuth();
 
     useEffect(() => {
-        if (!user) return;
-
-    const fetchUserId = async () => {
-        try {
-            const res = await fetch(`/api/user/profile?clerkId=${user.id}`);
-            if (res.ok) {
-            const data = await res.json();
-            if (data._id) {
-              setCurrentUserId(data._id); // Save MongoDB ObjectId for posts
-            }
-            }
-        } catch (error) {
-            console.error("Error fetching user profile:", error);
-        }
-    };
-    fetchUserId();
+      if (!user) return;
+      setCurrentUserId(user._id);
     }, [user]);
     
 return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   GraduationCap,
   Users,
@@ -41,12 +41,12 @@ function Card({ icon: Icon, title, desc }: any) {
 
 export default function LearnMore() {
   const router = useRouter();
-  const { isLoaded, isSignedIn } = useUser();
+  const { loading, isAuthenticated } = useAuth();
 
   const handleGetStartedNow = () => {
-    if (!isLoaded) return;
+    if (loading) return;
 
-    if (!isSignedIn) {
+    if (!isAuthenticated) {
       router.push("/sign-up");
     } else {
       router.push("/dashboard");

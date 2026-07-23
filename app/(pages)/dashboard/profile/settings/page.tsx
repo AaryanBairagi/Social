@@ -38,12 +38,6 @@ export default function SettingsPage() {
       desc: "Track your app usage",
       route: "time-management",
     },
-    {
-      label: "Security",
-      icon: Shield,
-      desc: "Manage password & account safety",
-      route: "security",
-    },
   ];
 
   return (

@@ -32,35 +32,3 @@ export async function GET(
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
-
-
-// import { connectDB } from "@/lib/db";
-// import { User } from "@/models/user.model";
-// import { NextRequest, NextResponse } from "next/server";
-
-// export async function GET(req: NextRequest, context: { params: { id: string } }) {
-//     try {
-//     await connectDB();
-    
-//     const params = await context.params;
-//     const { id } = params;
-//     const user = await User.findById(id);
-
-//     if (!user) return NextResponse.json({ message: "User not found" }, { status: 404 });
-
-//     const ids = (user.connections || []).map((id: any) => id.toString());
-
-//     if (!ids.length) return NextResponse.json([], { status: 200 });
-
-//     const following = await User.find({ _id: { $in: ids } })
-//         .select("firstName lastName userId profilePhoto")
-//         .lean();
-
-//     return NextResponse.json(following, { status: 200 });
-//     } catch (error) {
-//         console.error("Following fetch error:", error);
-//         return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
-//     }
-// }
-
-

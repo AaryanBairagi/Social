@@ -6,10 +6,10 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid,Headset,LogIn,InfoIcon,Users2,BookOpenCheck,CalendarDays,ArrowRight, SquareChevronRight } from "lucide-react";
+import { LayoutGrid,Headset,LogIn,InfoIcon,ArrowRight, SquareChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
 import { FaInstagram, FaTwitter, FaGithub, FaLinkedin } from "react-icons/fa";
+import { useAuth } from "@/contexts/AuthContext";
 
 const World = dynamic(() => import("@/components/ui/globe").then((mod) => mod.World), {
   ssr: false,
@@ -18,11 +18,11 @@ const World = dynamic(() => import("@/components/ui/globe").then((mod) => mod.Wo
 
 export default function LandingPage() {
   const router = useRouter();
-  const { isLoaded , isSignedIn} = useUser();
+  const { loading , isAuthenticated } = useAuth();
   const handleGetStarted = ()=>{
-    if(!isLoaded) return;
+    if(loading) return;
 
-    if(isSignedIn){
+    if(isAuthenticated){
       router.push("/dashboard");
     }else{
       router.push("/sign-up");
@@ -30,9 +30,9 @@ export default function LandingPage() {
   }
 
   const handleLogin = ()=>{
-    if(!isLoaded) return;
+    if(loading) return;
 
-    if(isSignedIn){
+    if(isAuthenticated){
       router.push("/dashboard");
     }else{
       router.push("/sign-in");

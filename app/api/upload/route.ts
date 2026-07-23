@@ -1,4 +1,4 @@
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
 
 cloudinary.config({
   cloud_name: "deazqe0j0",
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const result : { secure_url: string; resource_type: string; name: string } = await new Promise((resolve, reject) => {
+  const result : UploadApiResponse = await new Promise((resolve, reject) => {
     cloudinary.uploader.upload_stream(
       {
         // resource_type: "raw", 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
         access_mode:"public"
       },
       (error, result) => {
-        if (error) reject(error);
+        if (error || !result) reject(error ?? new Error("Cloudinary upload returned no result"));
         else resolve(result);
       }
     ).end(buffer);

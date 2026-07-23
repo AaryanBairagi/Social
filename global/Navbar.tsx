@@ -4,16 +4,24 @@ import { FloatingDock } from '@/components/ui/floating-dock'
 import { Calendar, Home, LayoutGrid, UserCircle, Users } from 'lucide-react'
 import Searchbar from './Searchbar'
 import Image from 'next/image'
-import { useUser } from '@clerk/nextjs'
 import Link from 'next/link'
-import { UserCard } from './UserCard'
 import { SearchDropdownItem } from './SearchDropDownComponent'
+import { useAuth } from '@/contexts/AuthContext'
+
+type SearchUser = {
+  _id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  profilePhoto?: string;
+};
+
 
 const Navbar = () => {
-  const { user , isSignedIn , isLoaded } = useUser();
+  const { user , isAuthenticated , loading } = useAuth();
 
   const [searchLoading , SetSearchLoading] = useState(false);
-  const [searchResults , SetSearchResults] = useState([]);
+  const [searchResults, SetSearchResults] = useState<SearchUser[]>([]);
   const [DropdownOpen,SetDropDownOpen] = useState(false);
   const [hasPendingRequests , SetHasPendingRequests] = useState(false);
 
@@ -34,7 +42,7 @@ const Navbar = () => {
   },[]);
 
   useEffect(() => {
-    if(!isLoaded || !isSignedIn) return;
+    if(loading || !isAuthenticated) return;
 
     const fetchPendingRequests = async() => { 
     try{
@@ -53,7 +61,7 @@ const Navbar = () => {
   }
 
     fetchPendingRequests();
-  } , [isLoaded,isSignedIn]);
+  } , [loading,isAuthenticated]);
 
 
   const handleSearch = useCallback(async(query:string)=>{
@@ -149,7 +157,7 @@ const Navbar = () => {
           {!searchLoading &&
             searchResults.map((user) => (
             <SearchDropdownItem
-              key={user.userId}
+              key={user.username}
               user={user}
               onClick={() => SetDropDownOpen(false)}
             />
@@ -168,7 +176,7 @@ const Navbar = () => {
 
       {/* Right Side  */}
       <div className="min-w-max ml-2 mr-4 flex items-center">
-          { isSignedIn && user && (
+          { isAuthenticated && user && (
             <div className="min-w-max text-gray-800 font-semibold hidden md:flex items-center">
               Hi, { user.firstName || user.username ||  "User" } !
             </div>

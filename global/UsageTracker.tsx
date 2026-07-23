@@ -1,10 +1,10 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
 export default function UsageTracker(){
-    const { user } = useUser();
+    const { user } = useAuth();
 
     useEffect(()=>{
         if(!user) return;
@@ -16,7 +16,7 @@ export default function UsageTracker(){
             const duration = Math.floor((Date.now() - startTime) / 1000);
             if(sent) return;
             sent = true;
-            navigator.sendBeacon("/api/usage/track" , new Blob([JSON.stringify({userId : user.id , duration})] , {type : "application/json"}));
+            navigator.sendBeacon("/api/usage/track" , new Blob([JSON.stringify({userId : user._id , duration})] , {type : "application/json"}));
         }
 
         window.addEventListener("beforeunload", handleBeforeUnload);

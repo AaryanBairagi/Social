@@ -10,16 +10,16 @@ type ServiceResult<T = unknown> = {
 
 const USER_PUBLIC_FIELDS = "firstName lastName userId profilePhoto bio college year department interests";
 
-async function getUserByClerkId(clerkId : string){
-    return User.findOne({clerkId});
+async function getCurrentUser(userId: string) {
+    return User.findById(userId);
 }
 
 async function getUserById(userId : string){
     return User.findById(userId);
 }
 
-export async function sendConnectionRequest(currentClerkId : string , targetUserId : string) : Promise<ServiceResult> {
-    const currentUser = await getUserByClerkId(currentClerkId);
+export async function sendConnectionRequest(currentUserId: string , targetUserId : string) : Promise<ServiceResult> {
+    const currentUser = await getCurrentUser(currentUserId);
     if(!currentUser) return {success:false , status : 404 , message : "Current User cannot be found"};
 
     const targetUser = await getUserById(targetUserId);
@@ -66,10 +66,10 @@ export async function sendConnectionRequest(currentClerkId : string , targetUser
 }
 
 export async function acceptConnectionRequest(
-  currentClerkId: string,
+  currentUserId: string,
   requesterId: string
 ): Promise<ServiceResult> {
-  const currentUser = await getUserByClerkId(currentClerkId);
+  const currentUser = await getCurrentUser(currentUserId);
   if (!currentUser) {
     return { success: false, status: 404, message: "Current user not found" };
   }
@@ -113,9 +113,8 @@ export async function acceptConnectionRequest(
   };
 }
 
-
-export async function getSentRequests(currentClerkId : string) : Promise<ServiceResult>{
-    const currentUser = await getUserByClerkId(currentClerkId);
+export async function getSentRequests(currentUserId : string) : Promise<ServiceResult>{
+    const currentUser = await getCurrentUser(currentUserId);
     if(!currentUser) return {success:false , status : 404 , message : "Current User cannot be found"};
 
     const sentRequests = await Connection.find({
@@ -133,8 +132,8 @@ export async function getSentRequests(currentClerkId : string) : Promise<Service
     }
 }
 
-export async function getReceivedRequests(currentClerkId : string) : Promise<ServiceResult>{
-    const currentUser = await getUserByClerkId(currentClerkId);
+export async function getReceivedRequests(currentUserId : string) : Promise<ServiceResult>{
+    const currentUser = await getCurrentUser(currentUserId);
     if(!currentUser) return {success:false , status : 404 , message : "Current User cannot be found"};
 
     const receivedRequests = await Connection.find({
@@ -204,10 +203,10 @@ export async function getFollowing(
 }
 
 export async function cancelSentRequest(
-  currentClerkId: string,
+  currentUserId: string,
   targetUserId: string
 ): Promise<ServiceResult> {
-  const currentUser = await getUserByClerkId(currentClerkId);
+  const currentUser = await getCurrentUser(currentUserId);
   if (!currentUser) {
     return { success: false, status: 404, message: "Current user not found" };
   }
@@ -240,10 +239,10 @@ export async function cancelSentRequest(
 }
 
 export async function rejectReceivedRequest(
-  currentClerkId: string,
+  currentUserId: string,
   requesterId: string
 ): Promise<ServiceResult> {
-  const currentUser = await getUserByClerkId(currentClerkId);
+  const currentUser = await getCurrentUser(currentUserId);
   if (!currentUser) {
     return { success: false, status: 404, message: "Current user not found" };
   }
@@ -276,10 +275,10 @@ export async function rejectReceivedRequest(
 }
 
 export async function unfollowUser(
-  currentClerkId: string,
+  currentUserId: string,
   targetUserId: string
 ): Promise<ServiceResult> {
-  const currentUser = await getUserByClerkId(currentClerkId);
+  const currentUser = await getCurrentUser(currentUserId);
   if (!currentUser) {
     return { success: false, status: 404, message: "Current user not found" };
   }
@@ -312,10 +311,10 @@ export async function unfollowUser(
 }
 
 export async function removeFollower(
-  currentClerkId: string,
+  currentUserId: string,
   followerUserId: string
 ): Promise<ServiceResult> {
-  const currentUser = await getUserByClerkId(currentClerkId);
+  const currentUser = await getCurrentUser(currentUserId);
   if (!currentUser) {
     return { success: false, status: 404, message: "Current user not found" };
   }

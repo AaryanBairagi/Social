@@ -44,8 +44,7 @@ export async function POST(req : NextRequest){
             email : user.email
         });
 
-        const userObj = user.toObject();
-        delete userObj.password;
+        const userObj = await User.findById(user._id).select("-password").lean();
 
         const response = NextResponse.json({ success : true , user : userObj});
 

@@ -1,19 +1,17 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Usage } from "@/models/usage.model";
-import { User } from "@/models/user.model";
+import { getAuth } from "@/lib/auth/getAuth";
 
+// Previously trusted a client-supplied ?userId= query param with no
+// verification - any logged-in user could view any other user's usage
+// analytics just by changing the value. Identity now comes from the
+// verified auth cookie instead.
 export async function GET(req: NextRequest) {
   try {
-    const userId = new URL(req.url).searchParams.get("userId");
+    const { userId } = await getAuth(req);
 
     if (!userId) {
-      return Response.json({ error: "Missing userId" }, { status: 400 });
-    }
-
-    const user = await User.findOne({ clerkId: userId });
-
-    if (!user) {
-      return Response.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // last 7 days
@@ -26,7 +24,7 @@ export async function GET(req: NextRequest) {
     const dailyData = await Promise.all(
       last7Days.map(async (date) => {
         const usage = await Usage.findOne({
-          user: user._id,
+          user: userId,
           date,
         });
 
@@ -48,7 +46,7 @@ export async function GET(req: NextRequest) {
       end.setDate(start.getDate() - 6);
 
       const usages = await Usage.find({
-        user: user._id,
+        user: userId,
         createdAt: {
           $gte: end,
           $lte: start,
@@ -63,13 +61,13 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    return Response.json({
+    return NextResponse.json({
       daily: dailyData,
       weekly: weeklyData,
     });
 
   } catch (err) {
     console.error(err);
-    return Response.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

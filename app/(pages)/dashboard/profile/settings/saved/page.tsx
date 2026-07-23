@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
 import Posts from "../../../_components/Posts";
 import SectionHeader from "@/global/SectionHeader";
 import { Bookmark } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SavedPostsPage() {
-  const { user } = useUser();
-  const currentUserId = user?.id;
+  const { user } = useAuth();
+  const currentUserId = user?._id;
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);

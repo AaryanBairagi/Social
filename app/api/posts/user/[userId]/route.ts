@@ -8,7 +8,7 @@ export async function GET(req: NextRequest, context : { params: { userId: string
   try {
     // 1. Look up the user ObjectId using their userId string
     const params = await context.params;
-    const user = await User.findOne({ userId: params.userId }).select("_id");
+    const user = await User.findOne({ username: params.userId }).select("_id");
     if (!user) return NextResponse.json([], { status: 200 }); // No posts if user not found
 
     // 2. Then find their posts

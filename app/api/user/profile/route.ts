@@ -1,59 +1,87 @@
 import { NextRequest, NextResponse } from "next/server";
-import { User } from "@/models/user.model"; 
 import { connectDB } from "@/lib/db";
+import { User } from "@/models/user.model";
+import { getAuth } from "@/lib/auth/getAuth";
 
 export async function GET(req: NextRequest) {
-  await connectDB();
-
-  const clerkId = req.nextUrl.searchParams.get("clerkId");
-  if (!clerkId) return NextResponse.json({ error: "clerkId required" }, { status: 400 });
-
-  const user = await User.findOne({ clerkId }).lean();
-  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
-  
-  return NextResponse.json(user);
-}
-
-export async function POST(req: NextRequest) {
-  await connectDB();
   try {
-    const body = await req.json();
-    const { userId, email, clerkId, ...rest } = body;
+    await connectDB();
 
-    if (!userId || !email || !clerkId) {
-      return NextResponse.json({ error: "userId, email, and clerkId required" }, { status: 400 });
+    const { userId } = await getAuth(req);
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    const existingUser = await User.findOne({ clerkId });
-    if (existingUser) {
-      return NextResponse.json({ error: "User already exists" }, { status: 409 });
+    const user = await User.findById(userId).lean();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
     }
 
-    const newUser = new User({ userId, email, clerkId, password: "dummyPassword123!", ...rest });
-    await newUser.save();
-
-    return NextResponse.json(newUser, { status: 201 });
+    return NextResponse.json(user);
   } catch (error) {
-    console.error("Error creating user:", error);
-    return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
+    console.error("GET profile error:", error);
+
+    return NextResponse.json(
+      { error: "Failed to fetch profile" },
+      { status: 500 }
+    );
   }
 }
 
 export async function PUT(req: NextRequest) {
-  await connectDB();
   try {
-    const body = await req.json();
-    const { clerkId, ...updates } = body;
-    if (!clerkId) return NextResponse.json({ error: "clerkId required" }, { status: 400 });
+    await connectDB();
 
-    const updatedUser = await User.findOneAndUpdate({ clerkId }, updates, { new: true });
-    if (!updatedUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const { userId } = await getAuth(req);
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const updates = await req.json();
+
+    // Prevent updating protected fields
+    delete updates._id;
+    delete updates.password;
+    delete updates.email;
+    delete updates.isVerified;
+    delete updates.createdAt;
+    delete updates.updatedAt;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      updates,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!updatedUser) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json(updatedUser);
   } catch (error) {
-    console.error("Error updating user:", error);
-    return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+    console.error("PUT profile error:", error);
+
+    return NextResponse.json(
+      { error: "Failed to update profile" },
+      { status: 500 }
+    );
   }
 }
-
-

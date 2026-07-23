@@ -1,22 +1,22 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
 import { useEffect, useRef, useState } from "react";
 import ChatWindow from "@/global/ChatWindow";
 import SectionHeader from "@/global/SectionHeader";
 import { Lock, MessageCircle } from "lucide-react";
 import { io } from "socket.io-client";
 import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 type ChatUser = {
   _id: string;
   firstName: string;
   lastName: string;
-  userId: string;
+  username: string;
   profilePhoto?: string;
 };
 
 export default function MessagePage() {
-  const { isLoaded } = useUser();
+  const { loading } = useAuth();
   const searchParams = useSearchParams();
   const sharedPost = searchParams?.get("share")
   const [mongoUserId, setMongoUserId] = useState<string | null>(null);
@@ -91,7 +91,7 @@ export default function MessagePage() {
 
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (loading) return;
     (async () => {
       const userIdRes = await fetch("/api/user/getId").then((r) => r.json());
       setMongoUserId(userIdRes.id);
@@ -99,9 +99,9 @@ export default function MessagePage() {
       setConnections(conns);
       setActiveChat(null); //dont auto open a chat on load
     })();
-  }, [isLoaded]);
+  }, [loading]);
 
-  if (!isLoaded || !mongoUserId) {
+  if (loading || !mongoUserId) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-gray-100">
         <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
@@ -143,13 +143,13 @@ const openChat = async (u: ChatUser) => {
               >
                 <img
                   className="w-9 h-9 rounded-full mr-3 border-2 border-cyan-300"
-                  src={u.profilePhoto || "/default-avatar.png"}
+                  src={u.profilePhoto || "/User-Prof.png"}
                   alt=""
                 />
                 <div className="flex items-center justify-between w-full">
                 <div className="flex flex-col">
                   <span className="truncate">{u.firstName} {u.lastName}</span>
-                  <span className="text-xs text-cyan-700 truncate">@{u.userId}</span>
+                  <span className="text-xs text-cyan-700 truncate">@{u.username}</span>
                 </div>
                 { unreadCounts[u._id] > 0 && (
                   <div className="rounded-full text-xs text-white px-2 py-0.5 bg-cyan-500 hover:text-cyan-700 tranisiton">

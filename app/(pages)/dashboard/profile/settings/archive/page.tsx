@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
 import Posts from "../../../_components/Posts";
 import { IoMdArchive } from "react-icons/io";
 import SectionHeader from "@/global/SectionHeader";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 export default function ArchivePage() {
-  const { user } = useUser();
-  const currentUserId = user?.id;
+  const { user } = useAuth();
+  const currentUserId = user?._id;
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);

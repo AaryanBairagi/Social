@@ -1,10 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/contexts/AuthContext";
 import PostDialog from "./PostDialog";
 
-const UserProfilePhoto = ({ src }: { src?: string }) =>
+const UserProfilePhoto = ({ src }: { src? : string }) =>
     src ? (
     <img
         src={src}
@@ -24,35 +24,12 @@ const UserProfilePhoto = ({ src }: { src?: string }) =>
 const PostInput = () => {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
-    const { user } = useUser();
-    const [currentUserId, setCurrentUserId] = useState<string>("");
-    const [profilePhoto, setProfilePhoto] = useState<string>("");
-
-    useEffect(() => {
-    if (!user) return;
-
-    const fetchUserProfile = async () => {
-        try {
-            const res = await fetch(`/api/user/profile?clerkId=${user.id}`);
-            if (res.ok) {
-                const data = await res.json();
-                if (data?._id) {
-                    setCurrentUserId(data._id); // MongoDB ObjectId for posts
-                }
-                if (data?.profilePhoto) {
-                    setProfilePhoto(data.profilePhoto); // Your DB profile photo URL here
-                } else {
-                    setProfilePhoto(""); // fallback empty
-                }
-            }
-        } catch (error) {
-            console.error("Error fetching user profile:", error);
-        }
-    };
-
-    fetchUserProfile();
-    }, [user]);
-
+    const { user } = useAuth();
+    const profilePhoto = user?.profilePhoto;
+    const currentUserId = user?._id ?? "";
+    const fullName = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
+    const username = user?.username;
+    
     const handleClick = () => {
         setLoading(true);
         setTimeout(() => {
@@ -61,6 +38,9 @@ const PostInput = () => {
         }, 900); // simulate async loading
     };
 
+    console.log(user);
+console.log("profilePhoto =", user?.profilePhoto);
+console.log("typeof =", typeof user?.profilePhoto);
     return (
         <div className="bg-white p-4 m-2 md:m-0 border border-gray-300 rounded-md drop-shadow-lg">
             <div className="flex items-center gap-3 relative">
@@ -105,7 +85,7 @@ const PostInput = () => {
                 open={open}
                 setOpen={setOpen}
                 src={profilePhoto}
-                name={user?.fullName || user?.username || ""}
+                name={fullName || username || ""}
                 currentUserId={currentUserId}
             />
         </div>

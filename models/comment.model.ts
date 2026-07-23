@@ -3,7 +3,7 @@ import { IUser } from './user.model';
 
 export interface IComment{
     textMessage:string,
-    user:IUser
+    user:mongoose.Types.ObjectId | IUser
 }
 
 export interface ICommentDocument extends IComment , Document{

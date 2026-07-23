@@ -14,7 +14,7 @@ export async function GET(
 
     const post = await Post.findById(id).populate(
       "user",
-      "firstName lastName userId profilePhoto"
+      "firstName lastName username profilePhoto"
     );
 
     if (!post) {
@@ -54,7 +54,7 @@ export async function PUT(req: NextRequest, context: { params: { id: string } })
         imageUrls: body.imageUrls ?? [], 
       },
       { new: true }
-    ).populate("user", "firstName lastName userId profilePhoto");
+    ).populate("user", "firstName lastName username profilePhoto");
 
     if (!updated)
       return NextResponse.json({ error: "Post Not Found" }, { status: 404 });
@@ -114,7 +114,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{id
 //     try{
 //         const params = await context.params;
 //         const id = params.id;
-//         const updated = await Post.findByIdAndUpdate(id, { ...body, ...(body.imageUrl === undefined ? { $unset: { imageUrl: 1 } } : {}) } , { new: true }).populate("user", "firstName lastName userId profilePhoto");
+//         const updated = await Post.findByIdAndUpdate(id, { ...body, ...(body.imageUrl === undefined ? { $unset: { imageUrl: 1 } } : {}) } , { new: true }).populate("user", "firstName lastName username profilePhoto");
 //         if(!updated) return NextResponse.json({error: "Post Not Found"},{status:404});
 //         return NextResponse.json(updated);
 //     }catch(error){

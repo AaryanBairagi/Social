@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { useUser } from "@clerk/nextjs";
 import {
   LineChart,
   Line,
@@ -15,6 +14,7 @@ import {
 } from "recharts";
 import SectionHeader from "@/global/SectionHeader";
 import { IoMdTime } from "react-icons/io";
+import { useAuth } from "@/contexts/AuthContext";
 
 /* ---------------- HELPERS ---------------- */
 
@@ -30,18 +30,18 @@ const formatTime = (sec: number) => {
 /* ---------------- PAGE ---------------- */
 
 export default function TimeManagementPage() {
-  const { user } = useUser();
+  const { user } = useAuth();
 
   const [daily, setDaily] = useState<any[]>([]);
   const [weekly, setWeekly] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?._id) return;
 
     const fetchStats = async () => {
       try {
-        const res = await fetch(`/api/usage/stats?userId=${user.id}`);
+        const res = await fetch(`/api/usage/stats?userId=${user._id}`);
         const data = await res.json();
 
         setDaily(data.daily || []);

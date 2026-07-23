@@ -3,24 +3,15 @@
 import { useEffect, useState } from "react";
 import SectionHeader from "@/global/SectionHeader";
 import { CalendarDays } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
 import Posts from "../_components/Posts";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function EventsPage() {
-  const { user } = useUser();
+  const { user } = useAuth();
   const [events, setEvents] = useState([]);
-  const [mongoId, setMongoId] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) return;
-
-    fetch(`/api/user/profile?clerkId=${user.id}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data._id) setMongoId(data._id);
-      });
-  }, [user]);
+  const mongoId = user?._id ?? "";
 
   useEffect(() => {
     if (!mongoId) return;

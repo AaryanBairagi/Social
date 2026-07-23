@@ -1,7 +1,7 @@
 import { connectDB } from "@/lib/db";
 import { Message } from "@/models/chat.model";
 import { User } from "@/models/user.model";
-import { getAuth } from "@clerk/nextjs/server";
+import { getAuth } from "@/lib/auth/getAuth";
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 
@@ -12,12 +12,12 @@ export async function PATCH(
   try {
     await connectDB();
 
-    const { userId } = getAuth(req);
+    const { userId } = await getAuth(req);
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const currentUser = await User.findOne({ clerkId: userId });
+    const currentUser = await User.findById(userId);
     if (!currentUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }

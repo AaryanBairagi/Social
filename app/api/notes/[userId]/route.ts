@@ -1,66 +1,83 @@
 import { connectDB } from "@/lib/db";
 import { Note } from "@/models/notes.model";
-import { NextRequest , NextResponse } from "next/server";
-import mongoose from "mongoose";
-import { User } from "@/models/user.model";
+import { NextRequest, NextResponse } from "next/server";
+import { getAuth } from "@/lib/auth/getAuth";
 import { checkLimiter } from "@/lib/rate/checkLimiter";
 
-export async function GET(req:NextRequest , context:{ params: Promise<{userId:string}> }){
-    try{
+export async function GET(req: NextRequest) {
+  try {
     await connectDB();
-    const params = await context.params;
-    const clerkId = params.userId;
 
-    if(!clerkId) return NextResponse.json({message:"Unauthorized User"},{status:400});
-    
-    const appUser = await User.findOne({ clerkId : clerkId });
-    if(!appUser) return NextResponse.json({error: "User Not Found"} , {status:400});
-        
-    const notes = await Note.find({ user: appUser._id }).sort({ createdAt: -1 }).lean();
+    const { userId } = await getAuth(req);
 
-    return NextResponse.json(notes,{status:200});
-
-    }catch(error){
-        console.error("Internal Server Error. Complete Error Message: " , error);
-        return NextResponse.json({message:"Inernal Server Error"},{status:500});
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Unauthorized User" },
+        { status: 401 }
+      );
     }
-    
+
+    const notes = await Note.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return NextResponse.json(notes, { status: 200 });
+  } catch (error) {
+    console.error("Internal Server Error:", error);
+
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }
 
-export async function POST(req:NextRequest , context:{ params:Promise<{userId:string}> }){
-    try{
-        await connectDB();
-        const data = await req.json();
-        const { fileUrl, description, createdAt, folder } = data;
+export async function POST(req: NextRequest) {
+  try {
+    await connectDB();
 
-        const params = await context.params;
-        const userId = params.userId;
-        const userObjectId = new mongoose.Types.ObjectId(userId);
+    const { userId } = await getAuth(req);
 
-        if(!userId) return NextResponse.json({message:"Unauthorized User"},{status:400});
-
-        checkLimiter(userId.toString(), "NOTE_CREATE", {
-            windowMs: 60 * 1000,
-            max: 10,
-        });
-
-        const newNote = new Note({
-            user : userObjectId,
-            fileUrl,
-            description,
-            folder : folder || null ,
-            createdAt: createdAt ? new Date(createdAt) : new Date(),
-        });
-
-        await newNote.save();
-        return NextResponse.json(newNote, { status: 201 });
-    }catch(error : any){
-        if(error.message.includes("Too many requests")){
-            return NextResponse.json({error : "Please Try Agian Later"},{status : 429});
-        }
-
-        console.error("Internal Server Error.Complete Error Message : " ,error);
-        return NextResponse.json({message:"Internal Server Error"},{status:500});
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Unauthorized User" },
+        { status: 401 }
+      );
     }
-}
 
+    checkLimiter(userId, "NOTE_CREATE", {
+      windowMs: 60 * 1000,
+      max: 10,
+    });
+
+    const { fileUrl, description, createdAt, folder } = await req.json();
+
+    const newNote = new Note({
+      user: userId,
+      fileUrl,
+      description,
+      folder: folder || null,
+      createdAt: createdAt ? new Date(createdAt) : new Date(),
+    });
+
+    await newNote.save();
+
+    return NextResponse.json(newNote, {
+      status: 201,
+    });
+  } catch (error: any) {
+    if (error.message?.includes("Too many requests")) {
+      return NextResponse.json(
+        { error: "Please Try Again Later" },
+        { status: 429 }
+      );
+    }
+
+    console.error("Internal Server Error:", error);
+
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}

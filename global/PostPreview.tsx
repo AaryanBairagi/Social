@@ -30,7 +30,7 @@ export const PostPreview = ({ post }: any) => {
       {/* Content */}
       <div className="p-3">
         <div className="text-sm font-semibold text-gray-800">
-          @{post?.user?.userId || "unknown"}
+          @{post?.user?.username || "unknown"}
         </div>
 
         <div className="text-xs text-gray-600 mt-1 line-clamp-2">
@@ -86,7 +86,7 @@ export const PostPreview = ({ post }: any) => {
 //       {/* Content */}
 //       <div className="p-3">
 //         <div className="text-sm font-semibold text-gray-800">
-//           @{post?.user?.userId || "unknown"}
+//           @{post?.user?.username || "unknown"}
 //         </div>
 
 //         <div className="text-xs text-gray-600 mt-1 line-clamp-2">

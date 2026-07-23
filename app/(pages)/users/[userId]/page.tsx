@@ -9,7 +9,7 @@ import Layout from "../../dashboard/layout";
 
 interface UserProfile {
   mongoId: string;
-  userId: string;
+  username: string;
   firstName: string;
   lastName: string;
   bio?: string;
@@ -24,7 +24,8 @@ interface UserProfile {
 type FollowStatus = "none" | "requested" | "received" | "following";
 
 export default function UserProfilePage() {
-  const { userId } = useParams();
+  const params = useParams<{ userId: string }>();
+  const userId = params?.userId;
   const [user, setUser] = useState<UserProfile | null>(null);
   const [status, setStatus] = useState<FollowStatus>("none");
   const [loading, setLoading] = useState(true);
@@ -135,7 +136,7 @@ export default function UserProfilePage() {
               <h2 className="text-xl font-semibold text-cyan-600">
                 {user.firstName} {user.lastName}
               </h2>
-              <p className="text-sm text-zinc-500">@{user.userId}</p>
+              <p className="text-sm text-zinc-500">@{user.username}</p>
             </div>
 
             {user.bio && (

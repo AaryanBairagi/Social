@@ -18,7 +18,7 @@ type Post = {
 
 type ProfileData = {
   mongoId: string;
-  userId: string;
+  username: string;
   firstName: string;
   lastName: string;
   bio?: string;
@@ -114,7 +114,7 @@ export default function UserProfileView() {
               <div className="bg-cyan-200 rounded-2xl shadow-lg p-6 sm:p-10 border border-cyan-100 backdrop-blur-sm hover:shadow-cyan-100/40 transition-all duration-300">
                 <UserProfileCard
                   profilePhoto={profileData.profilePhoto}
-                  userId={profileData.userId}
+                  username={profileData.username}
                   mongoId={profileData.mongoId}
                   firstName={profileData.firstName}
                   lastName={profileData.lastName}

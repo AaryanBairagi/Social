@@ -1,19 +1,20 @@
 import { connectDB } from "@/lib/db";
 import { Message } from "@/models/chat.model";
 import { User } from "@/models/user.model";
-import { getAuth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+import { getAuth } from "@/lib/auth/getAuth";
+
 
 export async function GET(req:NextRequest) {
   try {
     await connectDB();
 
-    const { userId } = getAuth(req);
+    const { userId } = await getAuth(req);
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await User.findOne({ clerkId: userId });
+    const user = await User.findById(userId);
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }

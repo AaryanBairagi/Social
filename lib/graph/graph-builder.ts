@@ -13,7 +13,7 @@ export async function buildConnectionGraph(userId: string) {
   /* 🔥 FETCH USERS IN ONE QUERY */
   const users = await User.find({
     _id: { $in: [centerId, ...firstDegree] },
-  }).select("userId profilePhoto");
+  }).select("username profilePhoto");
 
   const userMap = new Map(
     users.map((u : any) => [u._id.toString(), u])
@@ -26,7 +26,7 @@ export async function buildConnectionGraph(userId: string) {
     id: centerId,
     position: [0, 0, 0], // ✅ MUST BE ARRAY
     isCenter: true,
-    username: centerUser?.userId || "user",
+    username: centerUser?.username || "user",
     profilePhoto: centerUser?.profilePhoto || "/User-Prof.png",
   });
 
@@ -49,7 +49,7 @@ export async function buildConnectionGraph(userId: string) {
     nodes.set(id, {
       id,
       position: [x, y, z], // ✅ ARRAY
-      username: user?.userId || "user",
+      username: user?.username || "user",
       profilePhoto: user?.profilePhoto || "/User-Prof.png",
     });
 
@@ -76,9 +76,9 @@ export async function buildConnectionGraph(userId: string) {
   nodes.set(id, {
     id,
     position: [x, y, z],
-    username: user?.userId || "user",
+    username: user?.username || "user",
     profilePhoto: user?.profilePhoto || "/User-Prof.png",
-    isSecondDegree: true, // 👈 IMPORTANT
+    isSecondDegree: true, // 
   });
 
   edges.push({

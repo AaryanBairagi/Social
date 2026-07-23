@@ -1,9 +1,6 @@
-import { User } from "@/models/user.model";
-import { useUser } from "@clerk/nextjs";
-import { currentUser } from "@clerk/nextjs/server";
 import mongoose, { Connection } from "mongoose";
 
-let isConnected:Connection | boolean = false; //initially isConnected is false so we dont need to connect to db again and again 
+let isConnected: Connection | boolean = false; //initially isConnected is false so we dont need to connect to db again and again 
 
 export const connectDB = async()=>{
     if(isConnected){
@@ -18,23 +15,5 @@ export const connectDB = async()=>{
     }catch(error){
         console.log("Error Connecting to MongoDB");
         console.error(error);
-    }
-}
-
-export const getUserIdMongo = async()=>{
-    try{
-        const clerkUser = await currentUser();
-        if(!clerkUser){
-            throw new Error("Not Authenticated");
-        }
-        await connectDB();
-        const user = await User.findOne({clerkId: clerkUser.id}).select('_id').lean();
-        if (!user) throw new Error("User not found in DB");
-
-        return user._id.toString();
-    }
-    catch(error){
-        console.log("Error Connecting to MongoDB");
-        console.error(error);       
     }
 }

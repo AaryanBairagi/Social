@@ -61,7 +61,7 @@ export default function StoryViewer({ story, onClose }: any) {
             </span>
 
             <span className="text-xs font-medium text-white hover:text-white/90 cursor-pointer">
-              @{story.user?.userId}
+              @{story.user?.username}
             </span>
           </div>
 

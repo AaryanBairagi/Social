@@ -1,54 +1,63 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { SignOutButton, useUser } from "@clerk/nextjs";
 import { Button } from "../../../../components/ui/button";
 import { uploadFileToCloudinary } from "@/lib/uploadCloudinary";
 import { Trash , Save } from "lucide-react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useRouter } from "next/navigation";
-import {
-  Activity,
-  Bookmark,
-  Archive,
-  Clock,
-  Shield,
-  ChevronRight,
-} from "lucide-react";
+import { Activity, Bookmark, Archive, Clock, Shield, ChevronRight } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+
+type UserProfile = {
+  _id?: string;
+
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+
+  profilePhoto: string;
+
+  bio: string;
+  college: string;
+  year?: number;
+  department: string;
+
+  interests: string[];
+
+  socialLinks: {
+    linkedin: string;
+    github: string;
+    twitter: string;
+    instagram: string;
+  };
+};
 
 export default function UserProfilePage() {
-  const { user: clerkUser, isLoaded, isSignedIn } = useUser();
+  const { user , loading, isAuthenticated, logout } = useAuth();
 
-  const baseProfile = clerkUser
-    ? {
-        firstName: clerkUser.firstName || "",
-        lastName: clerkUser.lastName || "",
-        userId: clerkUser.username || "",
-        email: clerkUser.emailAddresses[0]?.emailAddress || "",
-        profilePhoto: "", // no Clerk image, start empty
-        bio: "",
-        college: "",
-        year: undefined,
-        department: "",
-        interests: [""],
-        socialLinks: { linkedin: "", github: "", twitter: "", instagram: "" },
-      }
-    : {
-        firstName: "",
-        lastName: "",
-        userId: "",
-        email: "",
-        profilePhoto: "", // no default avatar
-        bio: "",
-        college: "",
-        year: undefined,
-        department: "",
-        interests: [""],
-        socialLinks: { linkedin: "", github: "", twitter: "", instagram: "" },
-      };
+  const baseProfile : UserProfile = {
+    firstName: user?.firstName ?? "",
+    lastName: user?.lastName ?? "",
+    username : user?.username ?? "",
+    email: user?.email ?? "",
+    profilePhoto: user?.profilePhoto ?? "",
+    bio: user?.bio ?? "",
+    college: "",
+    year: undefined,
+    department: "",
+    interests: [""],
+    socialLinks: {
+      linkedin: "",
+      github: "",
+      twitter: "",
+      instagram: "",
+    },
+  };
 
-  const [user, setUser] = useState<any>(baseProfile);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<any>(baseProfile);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(baseProfile.profilePhoto);
@@ -80,45 +89,52 @@ export default function UserProfilePage() {
       desc: "Track your app usage",
       route: "time-management",
     },
-    {
-      label: "Security",
-      icon: Shield,
-      desc: "Manage password & account safety",
-      route: "security",
-    },
+
   ];
 
   const router = useRouter();
 
 
   useEffect(() => {
-    if (!isLoaded || !isSignedIn || !clerkUser) return;
+  if (loading) return;
 
-    const clerkId = clerkUser.id;
-    setLoading(true);
+  if (!isAuthenticated) {
+    router.push("/login");
+    return;
+  }
 
-    fetch(`/api/user/profile?clerkId=${clerkId}`)
-      .then(async (res) => {
-        if (res.status === 404) {
-          console.log("No user found in DB, using empty base profile");
-          setUser(baseProfile);
-          setPreview("");
-          setLoading(false);
-          return null;
-        }
-        const data = await res.json();
-        console.log("Fetched user from DB:", data);
-        setUser(data);
-        setPreview(data.profilePhoto || "");
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching user profile:", err);
-        setUser(baseProfile);
-        setPreview("");
-        setLoading(false);
+  const fetchProfile = async () => {
+    try {
+      setProfileLoading(true);
+
+      const res = await fetch("/api/user/profile", {
+        credentials: "include",
       });
-  }, [isLoaded, isSignedIn, clerkUser]);
+
+      if (res.status === 404) {
+        setProfile(baseProfile);
+        setPreview(baseProfile.profilePhoto);
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch profile");
+      }
+
+      const data = await res.json();
+
+      setProfile(data);
+      setPreview(data.profilePhoto || "");
+    } catch (err) {
+      console.error(err);
+      setProfile(baseProfile);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  fetchProfile();
+  }, [loading, isAuthenticated]);
 
   const handleImagePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
@@ -128,84 +144,91 @@ export default function UserProfilePage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (!user) return;
-    const { name, value } = e.target;
-    if (name.startsWith("socialLinks.")) {
-      const key = name.split(".")[1];
-      setUser((prev: any) => ({
-        ...prev,
-        socialLinks: { ...prev.socialLinks, [key]: value },
-      }));
-    } else {
-      setUser((prev: any) => ({ ...prev, [name]: value }));
-    }
+  const { name, value } = e.target;
+
+  if (name.startsWith("socialLinks.")) {
+    const key = name.split(".")[1];
+
+    setProfile((prev: UserProfile) => ({
+      ...prev,
+      socialLinks: {
+        ...prev.socialLinks,
+        [key]: value,
+      },
+    }));
+  } else {
+    setProfile((prev: UserProfile) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
   };
 
   const handleInterestChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
-    const interests = [...(user?.interests || [])];
-    interests[idx] = e.target.value;
-    setUser((prev: any) => ({ ...prev, interests }));
+  const interests = [...profile.interests];
+
+  interests[idx] = e.target.value;
+
+  setProfile((prev: UserProfile) => ({
+    ...prev,
+    interests,
+  }));
   };
 
   const addInterest = () => {
-    setUser((prev: any) => ({
-      ...prev,
-      interests: [...(prev.interests || []), ""],
-    }));
+  setProfile((prev: UserProfile) => ({
+    ...prev,
+    interests: [...prev.interests, ""],
+  }));
   };
 
   const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !clerkUser) return;
+  e.preventDefault();
 
-    setSaving(true);
+  setSaving(true);
 
-    let profilePhoto = user.profilePhoto;
+  try {
+    let profilePhoto = profile.profilePhoto;
 
     if (imageFile) {
-      try {
-        profilePhoto = await uploadFileToCloudinary(imageFile);
-      } catch (uploadErr) {
-        alert("Failed to upload profile photo. Please try again.");
-        setSaving(false);
-        return;
-      }
+      profilePhoto = await uploadFileToCloudinary(imageFile);
     }
 
-    const clerkId = clerkUser.id;
-    const updateData = { ...user, clerkId, profilePhoto };
+    const updateData = {
+      ...profile,
+      profilePhoto,
+    };
 
-    const method = user._id ? "PUT" : "POST";
+    const res = await fetch("/api/user/profile", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(updateData),
+    });
 
-    console.log("Saving user data with method:", method, updateData);
-
-    try {
-      const res = await fetch("/api/user/profile", {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updateData),
-      });
-
-      if (res.ok) {
-        const savedUser = await res.json();
-        setUser(savedUser);
-        setPreview(savedUser.profilePhoto || "");
-        setImageFile(null);
-        alert("Profile saved successfully!");
-      } else {
-        const errorData = await res.json();
-        console.error("Failed to save profile:", errorData);
-        alert("Failed to save profile: " + (errorData.error || "Unknown error"));
-      }
-    } catch (err) {
-      console.error("Error saving profile:", err);
-      alert("Error saving profile.");
-    } finally {
-      setSaving(false);
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Failed to save profile");
     }
+
+    const updated = await res.json();
+
+    setProfile(updated);
+    setPreview(updated.profilePhoto || "");
+    setImageFile(null);
+
+    alert("Profile saved successfully!");
+  } catch (err: any) {
+    console.error(err);
+    alert(err.message || "Failed to save profile.");
+  } finally {
+    setSaving(false);
+  }
   };
 
-  if (!isLoaded)
+  if (loading || profileLoading)
     return (
       <div className="flex flex-col items-center justify-center py-20 space-y-4">
         <div className="w-10 h-10 border-4 border-t-cyan-600 border-gray-300 rounded-full animate-spin"></div>
@@ -213,14 +236,14 @@ export default function UserProfilePage() {
       </div>
     );
 
-  if (!isSignedIn)
+  if (!isAuthenticated)
     return (
-      <div className="text-center py-20 text-red-600 font-semibold text-cyan-600">
+      <div className="text-center py-20 text-red-600 font-semibold">
         <p className="text-cyan-600">Please Login to view your Profile.</p>
       </div>
     );
 
-  if (loading || !user) 
+  if (!profile) 
     return (
       <div className="flex flex-row justify-center items-center py-20 space-y-4 gap-4">
         <p className="text-gray-400">Loading User Profile</p>
@@ -264,9 +287,9 @@ export default function UserProfilePage() {
           </label>
           <div>
             <h2 className="text-2xl font-bold">
-              {user.firstName || ""} {user.lastName || "Your Name"}
+              {profile.firstName || ""} {profile.lastName || "Your Name"}
             </h2>
-            <p className="text-gray-500">@{user.userId || "yourusername"}</p>
+            <p className="text-gray-500">@{profile.username || "yourusername"}</p>
           </div>
         </div>
         
@@ -281,6 +304,8 @@ export default function UserProfilePage() {
       <form onSubmit={handleSave} className="bg-white rounded-xl shadow-md p-8 border border-gray-100 flex flex-col gap-8">
         <div>
           <h3 className="text-lg font-semibold text-cyan-700 mb-4">User Information</h3>
+          
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block mb-1 font-medium">First Name</label>
@@ -288,7 +313,7 @@ export default function UserProfilePage() {
                 type="text"
                 name="firstName"
                 placeholder="Enter your first name"
-                value={user.firstName || ""}
+                value={profile.firstName || ""}
                 onChange={handleChange}
                 className={inputClassNames}
                 required
@@ -300,7 +325,7 @@ export default function UserProfilePage() {
                 type="text"
                 name="lastName"
                 placeholder="Enter your last name"
-                value={user.lastName || ""}
+                value={profile.lastName || ""}
                 onChange={handleChange}
                 className={inputClassNames}
               />
@@ -311,7 +336,7 @@ export default function UserProfilePage() {
                 type="text"
                 name="userId"
                 placeholder="Unique username"
-                value={user.userId || ""}
+                value={profile.username || ""}
                 onChange={handleChange}
                 className={inputClassNames}
                 required
@@ -323,7 +348,7 @@ export default function UserProfilePage() {
                 type="email"
                 name="email"
                 placeholder="Email"
-                value={user.email || ""}
+                value={profile.email || ""}
                 onChange={handleChange}
                 className={inputClassNames + " cursor-not-allowed bg-gray-100"}
                 required
@@ -336,7 +361,7 @@ export default function UserProfilePage() {
                 type="text"
                 name="college"
                 placeholder="Your college or university"
-                value={user.college || ""}
+                value={profile.college || ""}
                 onChange={handleChange}
                 className={inputClassNames}
               />
@@ -347,7 +372,7 @@ export default function UserProfilePage() {
                 type="text"
                 name="department"
                 placeholder="Department, e.g. CSE"
-                value={user.department || ""}
+                value={profile.department || ""}
                 onChange={handleChange}
                 className={inputClassNames}
               />
@@ -358,7 +383,7 @@ export default function UserProfilePage() {
                 type="number"
                 name="year"
                 placeholder="Year, e.g. 1, 2, 3, 4"
-                value={user.year || ""}
+                value={profile.year || ""}
                 onChange={handleChange}
                 min={1}
                 max={4}
@@ -371,7 +396,7 @@ export default function UserProfilePage() {
             <textarea
               name="bio"
               placeholder="Share something about yourself (max 200 chars)"
-              value={user.bio || ""}
+              value={profile.bio || ""}
               onChange={handleChange}
               rows={3}
               maxLength={200}
@@ -383,7 +408,7 @@ export default function UserProfilePage() {
         <div>
           <h3 className="text-lg font-semibold text-cyan-700 mb-4">Interests</h3>
           <div className="flex flex-wrap gap-2">
-            {(user.interests || []).map((tag: string, i: number) => (
+            {(profile.interests || []).map((tag: string, i: number) => (
               <div key={i} className="w-auto">
                 <label className="block text-sm mb-1">Interest #{i + 1}</label>
                 <input
@@ -415,7 +440,7 @@ export default function UserProfilePage() {
               <input
                 type="text"
                 name="socialLinks.linkedin"
-                value={user.socialLinks?.linkedin || ""}
+                value={profile.socialLinks?.linkedin || ""}
                 onChange={handleChange}
                 placeholder="LinkedIn URL"
                 className={inputClassNames}
@@ -426,7 +451,7 @@ export default function UserProfilePage() {
               <input
                 type="text"
                 name="socialLinks.github"
-                value={user.socialLinks?.github || ""}
+                value={profile.socialLinks?.github || ""}
                 onChange={handleChange}
                 placeholder="GitHub URL"
                 className={inputClassNames}
@@ -437,7 +462,7 @@ export default function UserProfilePage() {
               <input
                 type="text"
                 name="socialLinks.twitter"
-                value={user.socialLinks?.twitter || ""}
+                value={profile.socialLinks?.twitter || ""}
                 onChange={handleChange}
                 placeholder="Twitter URL"
                 className={inputClassNames}
@@ -448,7 +473,7 @@ export default function UserProfilePage() {
               <input
                 type="text"
                 name="socialLinks.instagram"
-                value={user.socialLinks?.instagram || ""}
+                value={profile.socialLinks?.instagram || ""}
                 onChange={handleChange}
                 placeholder="Instagram URL"
                 className={inputClassNames}
@@ -459,15 +484,20 @@ export default function UserProfilePage() {
         
         <div className="flex items-center justify-end gap-2 flex-row">
         <div className="flex justify-end mb-2">
-          <SignOutButton>
-            <Button
+          <Button
             type="button"
             variant="outline"
-            className="border-black/20 bg-red-600 px-6 py-2 shadow hover:shadow-cyan-200  text-white/90 hover:bg-red-700 hover:text-white/80 transition-colors duration-300 font-semibold">
-              Sign Out
-              <span><Trash className="w-5 h-5"/></span>
-            </Button>
-          </SignOutButton>
+            onClick={async () => {
+              await logout();
+              router.push("/login");
+            }}
+            className="border-black/20 bg-red-600 px-6 py-2 shadow hover:shadow-cyan-200 text-white/90 hover:bg-red-700 hover:text-white transition-colors duration-300 font-semibold"
+          >
+            Sign Out
+            <span>
+              <Trash className="w-5 h-5 ml-1" />
+            </span>
+          </Button>
         </div>
 
 
@@ -495,7 +525,7 @@ export default function UserProfilePage() {
       </form>
 
       {openSettings && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
 
     {/* BACKDROP */}
     <div

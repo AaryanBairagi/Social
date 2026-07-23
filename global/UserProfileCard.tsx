@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 
 export function UserProfileCard({
   profilePhoto,
-  userId,
+  username,
   mongoId,
   firstName,
   lastName,
@@ -20,7 +20,7 @@ export function UserProfileCard({
   onFollowChange,
 }: {
   profilePhoto?: string;
-  userId: string;
+  username: string;
   mongoId: string;
   firstName?: string;
   lastName?: string;
@@ -53,7 +53,7 @@ export function UserProfileCard({
       const res = await fetch(`/api/connections/${mongoId}/follow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetUserId: userId }),
+        body: JSON.stringify({ targetUserId: mongoId }),
       });
 
       if (!res.ok) throw new Error("Failed to send follow request");
@@ -75,7 +75,7 @@ export function UserProfileCard({
       const res = await fetch(`/api/connections/${mongoId}/unfollow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetUserId: userId }),
+        body: JSON.stringify({ targetUserId: mongoId }),
       });
 
       if (!res.ok) throw new Error("Failed to unfollow");
@@ -97,7 +97,7 @@ export function UserProfileCard({
       const res = await fetch(`/api/connections/${mongoId}/accept`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetUserId: userId }),
+        body: JSON.stringify({ targetUserId: mongoId }),
       });
 
       if (!res.ok) throw new Error("Failed to accept request");
@@ -166,7 +166,7 @@ export function UserProfileCard({
     >
       <img
         src={profilePhoto || "/User-Prof.png"}
-        alt={userId}
+        alt={username}
         className="w-28 h-28 rounded-full object-cover border-4 border-cyan-500 shadow-md mr-8"
         loading="lazy"
       />
@@ -178,7 +178,7 @@ export function UserProfileCard({
               <span className="text-2xl font-bold text-gray-900 break-words whitespace-normal">
                 {firstName} {lastName}
               </span>
-              <span className="text-gray-400 ml-2 text-lg">@{userId}</span>
+              <span className="text-gray-400 ml-2 text-lg">@{username}</span>
             </div>
             {bio && <div className="mt-1 text-gray-700">{bio}</div>}
           </div>

@@ -27,14 +27,14 @@ import { useRouter } from "next/navigation";
 type CommentObj = {
   _id: string;
   textMessage: string;
-  user: { firstName: string; lastName: string; userId: string } | null;
+  user: { firstName: string; lastName: string; username: string; profilePhoto?: string } | null;
 };
 
 type Post = {
   _id: string;
   description: string;
   imageUrls?: string[];
-  user: { _id: string; firstName: string; lastName: string; userId: string };
+  user: { _id: string; firstName: string; lastName: string; username: string; profilePhoto?: string };
   createdAt: string;
   likes?: string[];
   comments?: string[]; // We’ll now fetch the real comment objects separately!
@@ -288,7 +288,7 @@ export default function Posts({ currentUserId, userName , userProfileImageUrl , 
       user:{
         firstName : "You",
         lastName : "",
-        userId:  currentUserId
+        username:  currentUserId
       }
     };
 
@@ -535,12 +535,12 @@ export default function Posts({ currentUserId, userName , userProfileImageUrl , 
               ) : (
                 // Fallback: circle with initial first letter if no photo
                 <div className="w-12 h-12 bg-cyan-200 rounded-full flex items-center justify-center font-bold text-cyan-700 select-none">
-                  {post.user.firstName?.[0] || post.user.userId?.[0] || "U"}
+                  {post.user.firstName?.[0] || post.user.username?.[0] || "U"}
                 </div>
                 )}
                 <div>
                   <p className="font-semibold text-gray-900">{post.user.firstName} {post.user.lastName}</p>
-                  <p className="text-sm text-gray-500">@{post.user.userId}</p>
+                  <p className="text-sm text-gray-500">@{post.user.username}</p>
                   {/* TIMER */}
                   {post.type === "event" && post.eventDate && (
                     <p className="text-sm text-red-500 font-semibold">

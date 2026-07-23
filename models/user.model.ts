@@ -3,8 +3,7 @@ import mongoose from "mongoose";
 export interface IUser {
   firstName: string;
   lastName: string;
-  userId: string;
-  clerkId?: string;
+  username: string;
   email: string;
   profilePhoto?: string;
   bio?: string;
@@ -31,11 +30,10 @@ const userSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, trim: true },
-    userId: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    clerkId: { type: String, unique: true, sparse: true }, // unique for Clerk users
+    username: { type: String, required: true, unique: true, lowercase: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true, minlength: 6 },
-    profilePhoto: { type: String, default: "/default-avatar.png" },
+    profilePhoto: { type: String, default: "/User-Prof.png" },
     bio: { type: String, maxlength: 200 },
     college: { type: String, trim: true },
     year: { type: Number },

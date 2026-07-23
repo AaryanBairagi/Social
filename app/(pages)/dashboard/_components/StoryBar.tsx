@@ -50,7 +50,7 @@ export default function StoryBar({ userId }: any) {
               className={`w-16 h-16 rounded-full border-3 ${viewedStories[story._id] ? "border-gray-600" : "border-pink-700" }`}
             />
             <span className="text-xs mt-1 text-gray-600 hover:text-gray-700">
-              {story.user.userId}
+              {story.user.username}
             </span>
           </div>
         ))}

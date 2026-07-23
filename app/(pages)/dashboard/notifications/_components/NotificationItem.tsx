@@ -34,7 +34,7 @@ export default function NotificationItem({ notification }: any) {
 
     //  navigation logic
     if (type === "FOLLOW_REQUEST" || type === "FOLLOW_ACCEPT") {
-      router.push(`/dashboard/profile/${actor.userId}`);
+      router.push(`/dashboard/profile/${actor.username}`);
     } else {
       router.push(`/dashboard/posts/${notification.postId}`);
     }

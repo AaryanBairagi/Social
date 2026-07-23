@@ -1,16 +1,19 @@
+import { getAuth } from "@/lib/auth/getAuth";
 import { Usage } from "@/models/usage.model";
 import { User } from "@/models/user.model";
 import { NextRequest } from "next/server";
 
+
 export async function POST(req : NextRequest){
     try{
-        const { userId , duration } = await req.json();
+        const { userId } = await getAuth(req);
+        const { duration } = await req.json();
 
         if(!userId || !duration){
             return new Response(JSON.stringify({error: "Missing required fields"}), {status: 400});
         }
 
-        const user = await User.findOne({ clerkId : userId });
+        const user = await User.findById(userId);
         
         if(!user){
             return new Response(JSON.stringify({error: "User not found"}), {status: 404});
@@ -18,7 +21,7 @@ export async function POST(req : NextRequest){
 
         const today = new Date().toISOString().split('T')[0];
         await Usage.findOneAndUpdate(
-        { user: user._id, date: today },
+        { user: userId, date: today },
         { $inc: { timeSpent: duration } },
         { upsert: true, new: true }
         );

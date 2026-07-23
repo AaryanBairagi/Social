@@ -6,7 +6,7 @@ type ConnectionUser = {
   _id: string;
   firstName: string;
   lastName: string;
-  userId: string;
+  username: string;
   profilePhoto?: string;
   isFollowedByUser?: boolean;
   hasSentRequest?: boolean;    // User has sent a follow request to this person
@@ -18,7 +18,7 @@ export function UserCard({ user, refresh }: { user: ConnectionUser; refresh?: ()
   const [loading, setLoading] = useState(false);
 
   const handleNavigate = () => {
-    router.push(`/profile/${user.userId}`);
+    router.push(`/profile/${user.username}`);
   };
 
   const toggleFollow = async (e: React.MouseEvent) => {
@@ -87,7 +87,7 @@ export function UserCard({ user, refresh }: { user: ConnectionUser; refresh?: ()
           translateZ={0}
         >
           <img
-            src={user.profilePhoto || "/default-avatar.png"}
+            src={user.profilePhoto || "/User-Prof.png"}
             alt={`${user.firstName} ${user.lastName}`}
             className="
               w-20 h-20 rounded-full object-cover
@@ -100,7 +100,7 @@ export function UserCard({ user, refresh }: { user: ConnectionUser; refresh?: ()
           <h3 className="text-lg font-bold text-white text-center">
             {user.firstName} {user.lastName}
           </h3>
-          <p className="text-cyan-400 text-xs font-mono mb-2">@{user.userId}</p>
+          <p className="text-cyan-400 text-xs font-mono mb-2">@{user.username}</p>
           <button
             disabled={loading || buttonLabel === "Requested"}
             onClick={toggleFollow}

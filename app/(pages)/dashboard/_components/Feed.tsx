@@ -1,36 +1,15 @@
 "use client"
-import React, { useEffect } from 'react'
+import React from 'react'
 import PostInput from './PostInput'
 import Posts from './Posts'
 import StoryBar from './StoryBar'
-import { useUser } from '@clerk/nextjs'
 import WhatsNewModal from "@/global/WhatsNewModal";
+import { useAuth } from '@/contexts/AuthContext'
 
 const Feed  = () => {
-    const [currentUserId , setCurrentUserId] = React.useState<string>("");
-    const { user } = useUser();
-    const [createdAt, setCreatedAt] = React.useState<string>("");
-
-    useEffect(() => {
-        if (!user) return;
-
-    const fetchUserId = async () => {
-        try {
-            const res = await fetch(`/api/user/profile?clerkId=${user.id}`);
-            if (res.ok) {
-            const data = await res.json();
-            if (data._id) {
-              setCurrentUserId(data._id);
-              setCreatedAt(data.createdAt);
-              // Save MongoDB ObjectId for posts
-            }
-            }
-        } catch (error) {
-            console.error("Error fetching user profile:", error);
-        }
-    };
-    fetchUserId();
-    }, [user]);
+    const { user } = useAuth();
+    const [createdAt, setCreatedAt] = React.useState("");
+    const currentUserId = user?._id;
     
   return (
     <>

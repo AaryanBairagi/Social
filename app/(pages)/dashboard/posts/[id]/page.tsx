@@ -74,7 +74,7 @@ export default function SinglePostPage() {
               {post.user?.firstName} {post.user?.lastName}
             </p>
             <p className="text-xs text-gray-500">
-              @{post.user?.userId}
+              @{post.user?.username}
             </p>
           </div>
         </div>

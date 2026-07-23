@@ -11,50 +11,28 @@ import {
 // import { ImagesBadge } from "@/components/ui/images-badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePathname, useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { FileText, GraduationCap, MessageCircle, Cog, LifeBuoy, Bell } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function SideBar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useUser();
+  const { user } = useAuth();
   const socketRef = useRef<any>(null);
 
   const [profilePhoto, setProfilePhoto] = useState<string>("");
   const [hasUnread , setHasUnread] = useState(false);
   const [hasUnreadNotifications , setHasUnreadNotifications] = useState(false);
-  const [mongoId , SetMongoId] = useState<string | null>(null);
 
   // Fetch user profile
   useEffect(() => {
-    if (!user) return;
-
-    async function fetchUserProfile() {
-      try {
-        const res = await fetch(`/api/user/profile?clerkId=${user?.id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setProfilePhoto(data.profilePhoto || "");
-        }
-      } catch (error) {
-        console.error("Error fetching user profile photo:", error);
-      }
-    }
-    fetchUserProfile();
+    setProfilePhoto(user?.profilePhoto || "");
   }, [user]);
 
-  // Get Mongo ID
-  useEffect(()=>{
-    if(!user) return;
-
-    fetch("/api/user/getId")
-    .then(res => res.json())
-    .then((data) => SetMongoId(data.id))
-    .catch((err) => console.error("Failed to fetch the User Mongo ID",err))
-  },[user]);
+  const mongoId = user?._id ?? "";
 
   // Fetch notification count
   useEffect(()=>{

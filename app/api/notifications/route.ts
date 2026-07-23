@@ -1,23 +1,23 @@
 import { connectDB } from "@/lib/db";
 import { Notification } from "@/models/notification.model";
 import { User } from "@/models/user.model";
-import { getAuth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import "@/models/post.model";
+import { getAuth } from "@/lib/auth/getAuth";
 
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
 
-    const { userId: clerkId } = getAuth(req);
-    if (!clerkId) {
+    const { userId } = await getAuth(req);
+    if (!userId) {
       return NextResponse.json(
         { message: "Unauthorized User" },
         { status: 401 }
       );
     }
 
-    const user = await User.findOne({ clerkId });
+    const user = await User.findById(userId);
     if (!user) {
       return NextResponse.json(
         { message: "User Not Found!" },
@@ -26,14 +26,14 @@ export async function GET(req: NextRequest) {
     }
 
     const [notifications, unreadCount] = await Promise.all([
-      Notification.find({ user: user._id })
-        .populate("actor", "firstName lastName profilePhoto userId")
+      Notification.find({ user: userId })
+        .populate("actor", "firstName lastName profilePhoto username")
         .populate("post" , "_id")
         .sort({ createdAt: -1 })
         .limit(20),
 
       Notification.countDocuments({
-        user: user._id,
+        user: userId,
         isRead: false,
       }),
     ]);
@@ -60,12 +60,12 @@ export async function PATCH(req: NextRequest) {
   try {
     await connectDB();
 
-    const { userId: clerkId } = getAuth(req);
-    if (!clerkId) {
+    const { userId} = await getAuth(req);
+    if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await User.findOne({ clerkId });
+    const user = await User.findById(userId);
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
@@ -75,7 +75,7 @@ export async function PATCH(req: NextRequest) {
     const updated = await Notification.findOneAndUpdate(
       {
         _id: notificationId,
-        user: user._id, // 🔥 SECURITY CHECK
+        userId, // 🔥 SECURITY CHECK
       },
       { isRead: true },
       { new: true }

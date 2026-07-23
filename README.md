@@ -12,7 +12,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com)
 [![Socket.io](https://img.shields.io/badge/Socket.io-Realtime-black?logo=socket.io)](https://socket.io)
-[![Clerk](https://img.shields.io/badge/Auth-Clerk-6C47FF)](https://clerk.com)
+![JWT](https://img.shields.io/badge/Auth-JWT-22C55E)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 
 **[Live Demo](#) · [Report Bug](https://github.com/AaryanBairagi/social/issues)**
@@ -65,12 +65,13 @@ Social is structured as a modular full-stack application composed of several sys
 
 ### Authentication Layer
 
-Handles identity and session management via **Clerk**.
+Handles identity and session management using a custom **JWT-based authentication system** with access and refresh tokens.
 
 Responsibilities:
-* Sign up / sign in, session validation, and route protection at the middleware level
-* Synchronizing Clerk identities with a corresponding MongoDB user document
-* Gating all API routes and pages behind a valid session
+* User registration and login with secure password hashing
+* JWT access and refresh token issuance using HttpOnly cookies
+* Session validation and route protection
+* Authentication of API routes via server-side JWT verification
 
 ### Content Management Layer
 
@@ -218,7 +219,7 @@ Story                          Contact
 | [Next.js API Routes](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) | Serverless API endpoints |
 | [Socket.io](https://socket.io) | Real-time bidirectional messaging |
 | [Node.js `crypto`](https://nodejs.org/api/crypto.html) | AES-256-GCM message encryption |
-| [Clerk](https://clerk.com) | Authentication & session management |
+| JSON Web Tokens (JWT) | Custom authentication using access & refresh tokens |
 
 ### Database & Storage
 
@@ -312,9 +313,9 @@ Visit `http://localhost:3000`.
 Create a `.env.local` file:
 
 ```env
-# Clerk
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
+# Authentication
+JWT_ACCESS_SECRET=
+JWT_REFRESH_SECRET=
 
 # Database
 MONGO_URI=
@@ -344,7 +345,7 @@ Built as a demonstration of end-to-end social-platform engineering — real-time
 | Notes/file workspace with PDF viewer | ✅ Implemented |
 | Usage analytics (daily/weekly) | ✅ Implemented |
 | Per-action rate limiting | ✅ Implemented |
-| Authentication | ✅ Clerk (managed) — a custom JWT-based auth layer is planned; see [Roadmap](#roadmap) |
+| Authentication | ✅ Custom JWT authentication (access & refresh tokens with HttpOnly cookies) |
 | Socket.io connection authentication | ⚠️ Not yet enforced at the transport layer |
 | Rate limiting / caching persistence | ⚠️ In-memory — resets on server restart, not multi-instance safe |
 | Automated test coverage | ❌ Not yet implemented |
@@ -353,8 +354,7 @@ Built as a demonstration of end-to-end social-platform engineering — real-time
 
 ## Roadmap
 
-* [ ] Replace Clerk with a self-implemented JWT authentication system (access/refresh token rotation, httpOnly cookies, bcrypt password hashing) to bring auth in-house
-* [ ] Authenticate Socket.io connections via JWT handshake verification
+* [ ] Authenticate Socket.io connections using JWT handshake verification
 * [ ] Move rate limiting and caching to Redis for multi-instance correctness
 * [ ] Add automated tests around auth, messaging, and the connection request state machine
 * [ ] Direct message read-receipts UI polish

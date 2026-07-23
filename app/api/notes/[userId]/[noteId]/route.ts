@@ -1,25 +1,29 @@
 import { connectDB } from "@/lib/db";
 import { Note } from "@/models/notes.model";
-import { User } from "@/models/user.model";
+import { getAuth } from "@/lib/auth/getAuth";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: Promise<{ userId: string; noteId: string }> }
+  context: { params: Promise<{ noteId: string }> }
 ) {
   try {
     await connectDB();
-    const { userId, noteId } = await context.params;
-    const data = await req.json();
+    const { noteId } = await context.params;
+    const { userId } = await getAuth(req);
 
-    // Find the MongoDB user by Clerk ID
-    const appUser = await User.findOne({ clerkId: userId });
-    if (!appUser)
-      return NextResponse.json({ error: "User Not Found" }, { status: 400 });
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const data = await req.json();
 
     // Update note
     const updatedNote = await Note.findOneAndUpdate(
-      { _id: noteId, user: appUser._id },
+      { _id: noteId, user: userId },
       { $set: { description: data.description, folder: data.folder } },
       { new: true }
     );
@@ -36,16 +40,15 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ userId: string; noteId: string }> }
+  context: { params: Promise<{ noteId: string }> }
 ) {
   try {
     await connectDB();
-    const { userId, noteId } = await context.params;
-    const appUser = await User.findOne({ clerkId: userId });
-    if (!appUser)
-      return NextResponse.json({ error: "User Not Found" }, { status: 400 });
+    const { noteId } = await context.params;
+    const { userId } = await getAuth(req);
 
-    const note = await Note.findOneAndDelete({ _id: noteId, user: appUser._id });
+
+    const note = await Note.findOneAndDelete({ _id: noteId, user: userId });
 
     if (!note)
       return NextResponse.json({ error: "Note Not Found" }, { status: 404 });
