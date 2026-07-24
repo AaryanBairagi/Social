@@ -6,6 +6,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useCallback,
   ReactNode,
 } from "react";
 
@@ -30,87 +31,113 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// Access tokens are short-lived (15m). Refresh a little before that so an
-// in-progress session never gets kicked to /sign-in mid-use.
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const fetchMe = async (): Promise<User | null> => {
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // --------------------------------------------------
+  // Fetch current user
+  // --------------------------------------------------
+
+  const fetchMe = useCallback(async (): Promise<User | null> => {
     const res = await fetch("/api/auth/me", {
       credentials: "include",
       cache: "no-store",
     });
-    const data = await res.json();
-    return data.user ?? null;
-  };
 
-  const refreshAccessToken = async (): Promise<boolean> => {
+    const data = await res.json();
+
+    return data.user ?? null;
+  }, []);
+
+  // --------------------------------------------------
+  // Refresh Access Token
+  // --------------------------------------------------
+
+  const refreshAccessToken = useCallback(async (): Promise<boolean> => {
     try {
       const res = await fetch("/api/auth/refresh", {
         method: "POST",
         credentials: "include",
       });
+
       return res.ok;
     } catch {
       return false;
     }
-  };
+  }, []);
 
-  // Tries /api/auth/me; if that comes back empty, it might just be that the
-  // 15-minute access token expired while the 30-day refresh token is still
-  // good - so refresh once and try again before concluding the user is
-  // actually logged out.
-  const refreshUser = async () => {
+  // --------------------------------------------------
+  // Refresh User
+  // --------------------------------------------------
+
+  const refreshUser = useCallback(async () => {
     try {
       let currentUser = await fetchMe();
 
       if (!currentUser) {
         const refreshed = await refreshAccessToken();
+
         if (refreshed) {
           currentUser = await fetchMe();
         }
       }
 
       setUser(currentUser);
-    } catch {
+    } catch (err) {
+      console.error("Auth refresh failed:", err);
       setUser(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchMe, refreshAccessToken]);
 
-  const logout = async () => {
-  try {
-    // Stop the refresh timer immediately
-    if (refreshIntervalRef.current) {
-      clearInterval(refreshIntervalRef.current);
-      refreshIntervalRef.current = null;
-    }
+  // --------------------------------------------------
+  // INITIAL AUTH CHECK (THIS WAS MISSING)
+  // --------------------------------------------------
 
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-      cache: "no-store",
-    });
-
-    setUser(null);
-    setLoading(false);
-  } catch (err) {
-    console.error("Logout failed:", err);
-  }};
-
-  // While a session is active, proactively refresh the access token every
-  // 10 minutes so it never actually gets a chance to expire mid-session.
   useEffect(() => {
-    if (user) {
-      refreshIntervalRef.current = setInterval(() => {
-        refreshAccessToken();
-      }, REFRESH_INTERVAL_MS);
+    void refreshUser();
+  }, [refreshUser]);
+
+  // --------------------------------------------------
+  // Logout
+  // --------------------------------------------------
+
+  const logout = useCallback(async () => {
+    try {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = null;
+      }
+
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      setUser(null);
+      setLoading(false);
+    } catch (err) {
+      console.error("Logout failed:", err);
     }
+  }, []);
+
+  // --------------------------------------------------
+  // Auto Refresh Access Token
+  // --------------------------------------------------
+
+  useEffect(() => {
+    if (!user) return;
+
+    refreshIntervalRef.current = setInterval(() => {
+      void refreshAccessToken();
+    }, REFRESH_INTERVAL_MS);
 
     return () => {
       if (refreshIntervalRef.current) {
@@ -118,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         refreshIntervalRef.current = null;
       }
     };
-  }, [user]);
+  }, [user, refreshAccessToken]);
 
   return (
     <AuthContext.Provider

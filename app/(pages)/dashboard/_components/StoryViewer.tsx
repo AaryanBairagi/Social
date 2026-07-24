@@ -41,7 +41,7 @@ export default function StoryViewer({ story, onClose }: any) {
   }, [story, onClose]);
 
   return (
-    <div className="fixed inset-0 flex items-start pt-15 justify-center z-50">
+    <div className="fixed inset-0 flex items-start pt-35 justify-center z-40">
 
       <div className="relative w-[360px] max-h-[80vh] bg-black rounded-xl overflow-hidden shadow-xl flex items-center justify-center">
 

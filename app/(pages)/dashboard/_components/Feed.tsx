@@ -16,7 +16,7 @@ const Feed  = () => {
 
 
     {/* <div className='flex flex-col gap-4  bg-white/60 rounded-lg drop-shadow-lg'> */}
-    <div className="flex flex-col gap-6 bg-white/60 rounded-lg items-center max-w-6xl drop-shadow-lg border-gray-200">
+    <div className="pt-6 flex flex-col gap-6 bg-white/60 rounded-lg items-center max-w-6xl drop-shadow-lg border-gray-200">
       {currentUserId && 
         <WhatsNewModal userId={currentUserId} createdAt={createdAt} />
       }

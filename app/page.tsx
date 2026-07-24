@@ -10,6 +10,7 @@ import { AuroraBackground } from "@/components/ui/aurora-background";
 export default function LandingPage() {
   const router = useRouter();
   const { loading, isAuthenticated } = useAuth();
+  console.log(loading, isAuthenticated);
 
   const handleGetStarted = () => {
     if (loading) return;
@@ -17,6 +18,7 @@ export default function LandingPage() {
   };
 
   const handleLearnMore = () => {
+    console.log("Loading" , {loading});
     if(loading) return;
     router.push("/learn-more");
   }
@@ -53,7 +55,7 @@ export default function LandingPage() {
 
             <Button
               onClick={handleLearnMore}
-              className="group flex items-center gap-2 rounded-xl border border-white/20 px-6 py-3.5 text-white/90 transition hover:bg-cyan-300 hover:border-cyan-400 hover:text-cyan-300"
+              className="group flex items-center gap-2 rounded-xl bg-cyan-700/50 px-6 py-4.5 text-base shadow-lg drop-shadow-lg hover:bg-cyan-700/80 hover:text-white/80"
             >
               <BookOpen className="h-4 w-4 transition group-hover:translate-x-0.5" />
               Learn more
