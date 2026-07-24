@@ -68,6 +68,8 @@ export function UserCard({ user, refresh }: { user: ConnectionUser; refresh?: ()
       buttonClasses = "bg-[#06b6d4] text-white hover:bg-[#0891b2] border border-[#06b6d4]"; 
   }
 
+  console.log(user);
+  
   return (
     <div className="cursor-pointer max-w-xs" onClick={handleNavigate}>
     <CardContainer containerClassName="cursor-pointer" className="max-w-xs" onClick={handleNavigate}>

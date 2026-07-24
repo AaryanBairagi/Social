@@ -8,7 +8,7 @@ type ServiceResult<T = unknown> = {
   data?: T;
 };
 
-const USER_PUBLIC_FIELDS = "firstName lastName userId profilePhoto bio college year department interests";
+const USER_PUBLIC_FIELDS = "firstName lastName username profilePhoto bio college year department interests";
 
 async function getCurrentUser(userId: string) {
     return User.findById(userId);
