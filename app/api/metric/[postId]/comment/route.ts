@@ -7,6 +7,8 @@ import { RATE_LIMITS } from "@/lib/rate/constants";
 import { createNotification } from "@/lib/notifications/notifications.service";
 import mongoose from "mongoose";
 import { getAuth } from "@/lib/auth/getAuth";
+import { validate } from "@/lib/validation";
+import { CreateCommentSchema } from "@/lib/validators";
 
 export async function GET(req: NextRequest, context: { params: Promise<{ postId: string }> }) {
   try {
@@ -52,8 +54,16 @@ export async function POST(
     const params = await context.params;
     const postId = params.postId;
 
-    const { textMessage } = await req.json();
+    const body = await req.json();
 
+    const validated = validate(CreateCommentSchema, body);
+
+    if (!validated.success) {
+      return validated.response;
+    }
+
+    const { textMessage } = validated.data;
+    
     if (!textMessage || !textMessage.trim()) {
       return NextResponse.json(
         { message: "Comment text is required" },

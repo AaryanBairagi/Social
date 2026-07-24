@@ -102,8 +102,28 @@ const Navbar = () => {
   ] , [hasPendingRequests]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-gray-500/40 
-                    shadow-lg rounded-b-2xl mx-auto flex justify-between items-center gap-6 pt-3 px-6 transition-all h-[120px]">
+    // <nav className="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-gray-500/40 
+    //                 mx-auto flex justify-between items-center gap-6 pt-3 px-6 transition-all h-[120px]">
+
+    <nav
+className="
+fixed
+top-0
+left-0
+right-0
+h-[120px]
+z-50
+border-b
+border-gray-300
+bg-white/40
+backdrop-blur-xl
+flex
+items-center
+justify-between
+px-8
+"
+>
+
       {/* Logo + BrandName */}
       <div className="flex items-center gap-2 min-w-max ml-2">
         <Image src="/SocialLogo.png" alt="logo" width={32} height={32} />

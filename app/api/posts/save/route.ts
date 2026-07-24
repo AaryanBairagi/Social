@@ -1,11 +1,19 @@
 import { NextRequest } from "next/server";
 import { Post } from "@/models/post.model";
 import mongoose from "mongoose";
+import { validate } from "@/lib/validation";
+import { SavePostSchema } from "@/lib/validators";
 
 export async function POST(req: NextRequest) {
   try {
-    const { postId, userId } = await req.json();
+    const body = await req.json();
 
+    const validated = validate(SavePostSchema , body);
+    if(!validated.success){
+      return validated.response;
+    }
+
+    const { postId, userId } = validated.data;
     if (!postId || !userId) {
       return Response.json({ error: "Missing data" }, { status: 400 });
     }

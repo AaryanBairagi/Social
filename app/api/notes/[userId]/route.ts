@@ -3,6 +3,8 @@ import { Note } from "@/models/notes.model";
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@/lib/auth/getAuth";
 import { checkLimiter } from "@/lib/rate/checkLimiter";
+import { CreateNoteSchema } from "@/lib/validators/note";
+import { validate } from "@/lib/validation";
 
 export async function GET(req: NextRequest) {
   try {
@@ -50,8 +52,12 @@ export async function POST(req: NextRequest) {
       max: 10,
     });
 
-    const { fileUrl, description, createdAt, folder } = await req.json();
+    const body = await req.json();
+    const validated = validate(CreateNoteSchema , body);
+    if(!validated.success) return validated.response;
 
+    const { fileUrl, description, createdAt, folder } = validated.data;
+    
     const newNote = new Note({
       user: userId,
       fileUrl,

@@ -15,12 +15,19 @@ const Feed  = () => {
     <>
 
 
-    <div className='flex flex-col gap-4'>
+    {/* <div className='flex flex-col gap-4  bg-white/60 rounded-lg drop-shadow-lg'> */}
+    <div className="flex flex-col gap-6 bg-white/60 rounded-lg items-center max-w-6xl drop-shadow-lg border-gray-200">
       {currentUserId && 
         <WhatsNewModal userId={currentUserId} createdAt={createdAt} />
       }
-      <PostInput />  
-      {currentUserId && <StoryBar userId={currentUserId} />}
+
+      <div className="w-full max-w-6xl">{currentUserId && <StoryBar userId={currentUserId} />}</div>
+
+        <div className="w-4xl">
+          <PostInput />
+        </div>
+
+      <div className="w-full max-w-2xl">
       {currentUserId ? <Posts currentUserId={currentUserId} mode="feed" /> : (        
       <div className="flex justify-center items-center py-10">
         <svg className="animate-spin h-10 w-10 text-cyan-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -30,6 +37,7 @@ const Feed  = () => {
       </div>
         )
       }
+      </div>
     </div>
     </>
   )

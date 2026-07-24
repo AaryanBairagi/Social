@@ -1,4 +1,6 @@
 import { getAuth } from "@/lib/auth/getAuth";
+import { validate } from "@/lib/validation";
+import { UsageTrackSchema } from "@/lib/validators/usage";
 import { Usage } from "@/models/usage.model";
 import { User } from "@/models/user.model";
 import { NextRequest } from "next/server";
@@ -7,8 +9,12 @@ import { NextRequest } from "next/server";
 export async function POST(req : NextRequest){
     try{
         const { userId } = await getAuth(req);
-        const { duration } = await req.json();
+        
+        const body = await req.json();
+        const validated = validate(UsageTrackSchema , body);
+        if(!validated.success) return validated.response;
 
+        const { duration } = validated.data;
         if(!userId || !duration){
             return new Response(JSON.stringify({error: "Missing required fields"}), {status: 400});
         }

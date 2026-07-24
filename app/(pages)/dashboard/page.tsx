@@ -5,9 +5,8 @@ import Feed from './_components/Feed'
 const Page = () => {
 
   return (
-    <div>
+
       <Feed />
-    </div>
   )
 }
 

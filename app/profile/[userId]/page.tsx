@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { UserProfileCard } from "../../../global/UserProfileCard";
 import PostsComponent from "../../../global/PostsComponent";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Navbar from "@/global/Navbar";
 import { SideBar } from "@/global/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Lock } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+
 
 type Post = {
   _id: string;
@@ -37,6 +39,8 @@ type ProfileData = {
 
 export default function UserProfileView() {
   const params = useParams();
+  const router = useRouter();
+  const { user } = useAuth();
 
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -75,6 +79,14 @@ export default function UserProfileView() {
       fetchProfile();
     }
   }, [params?.userId]);
+
+  useEffect(() => {
+  if (!profileData || !user) return;
+
+  if (profileData.mongoId === user._id) {
+    router.replace("/dashboard/connections");
+  }
+}, [profileData, user, router]);
 
   if (loadingProfile) {
     return (           
@@ -125,6 +137,7 @@ export default function UserProfileView() {
                   isFollowedByUser={profileData.isFollowedByUser}
                   hasSentRequest={profileData.hasSentRequest}
                   hasReceivedRequest={profileData.hasReceivedRequest}
+                  isOwnProfile={profileData.mongoId === user?._id}
                   showActions={true}
                   onFollowChange={(type) => {
                     setProfileData((prev) => {

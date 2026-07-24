@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/user.model";
 import { getAuth } from "@/lib/auth/getAuth";
+import { validate } from "@/lib/validation";
+import { UpdateProfileSchema } from "@/lib/validators";
 
 export async function GET(req: NextRequest) {
   try {
@@ -49,19 +51,47 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const updates = await req.json();
+    const body = await req.json();
+    console.log(body);
 
-    // Prevent updating protected fields
-    delete updates._id;
-    delete updates.password;
-    delete updates.email;
-    delete updates.isVerified;
-    delete updates.createdAt;
-    delete updates.updatedAt;
+    const validated = validate(UpdateProfileSchema , body);
+    if (!validated.success) {
+      console.log("ZOD ERROR:", validated);
+
+      return NextResponse.json(
+      {
+        error: "Validation failed",
+        validation: validated,
+      },
+      { status: 400 }
+      );
+    }
+
+    const {
+      firstName,
+      lastName,
+      bio,
+      college,
+      department,
+      year,
+      interests,
+      socialLinks,
+      profilePhoto,
+    } = validated.data;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      updates,
+      {
+        firstName,
+        lastName,
+        bio,
+        college,
+        department,
+        year,
+        interests,
+        socialLinks,
+        profilePhoto,
+      },
       {
         new: true,
         runValidators: true,

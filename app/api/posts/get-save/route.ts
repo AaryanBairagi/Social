@@ -3,6 +3,8 @@ import { connectDB } from "@/lib/db";
 import { getAuth } from "@/lib/auth/getAuth";
 import { Post } from "@/models/post.model";
 import mongoose from "mongoose";
+import { validate } from "@/lib/validation";
+import { SavePostSchema } from "@/lib/validators";
 
 export async function GET(req: NextRequest) {
   try {
@@ -47,7 +49,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { postId } = await req.json();
+    const body = await req.json();
+    
+    const validated = validate(SavePostSchema,body);
+    if(!validated.success) return validated.response;
+
+    const { postId } = validated.data;
 
     if (!postId) {
       return Response.json(

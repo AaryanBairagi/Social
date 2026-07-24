@@ -6,7 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Users, UserCheck, Search } from "lucide-react";
 import { UserCard } from "../../../../global/UserCard";
 import { UserProfileCard } from "@/global/UserProfileCard";
-import ConnectionGraph from "@/global/ConnectionGraph";
 import { useAuth } from "@/contexts/AuthContext";
 
 type ConnectionUser = {
@@ -75,12 +74,8 @@ export default function ConnectionsPage() {
   const [receivedRequests, setReceivedRequests] = useState<string[]>([]);
   const [sentRequestUsers, setSentRequestUsers] = useState<ConnectionUser[]>([]);
   const [receivedRequestUsers, setReceivedRequestUsers] = useState<ConnectionUser[]>([]);
-  const [recommendationsLoading , SetRecommendationsLoading] = useState(false);
-  const [recommendations , SetRecommendations] = useState<RecommendationItem[]>([]);
-  const [graphData , setGraphData] = useState<any>(null);
-  const [showGraph , setShowGraph] = useState(false);
-  const [graphLoading , setGraphLoading] = useState(false);
-
+  const [recommendationsLoading, setRecommendationsLoading] = useState(false);
+  const [recommendations, setRecommendations] = useState<RecommendationItem[]>([]);
 
   useEffect(() => {
     async function fetchMongoUserId() {
@@ -162,15 +157,11 @@ export default function ConnectionsPage() {
       const receivedEdges: ConnectionEdge[] = requestsData.receivedRequests || [];
 
       const sentIds = sentEdges
-        .map((edge) =>
-          typeof edge.toUser === "string" ? edge.toUser : edge.toUser?._id
-        )
+        .map((edge) => (typeof edge.toUser === "string" ? edge.toUser : edge.toUser?._id))
         .filter(Boolean) as string[];
 
       const receivedIds = receivedEdges
-        .map((edge) =>
-          typeof edge.fromUser === "string" ? edge.fromUser : edge.fromUser?._id
-        )
+        .map((edge) => (typeof edge.fromUser === "string" ? edge.fromUser : edge.fromUser?._id))
         .filter(Boolean) as string[];
 
       const sentUsers = sentEdges
@@ -240,7 +231,6 @@ export default function ConnectionsPage() {
       });
 
       setProfileUser(user);
-
     } catch {
       setFollowers([]);
       setFollowing([]);
@@ -285,32 +275,29 @@ export default function ConnectionsPage() {
     fetchDiscoverUsers();
   }, [mongoUserId]);
 
-  useEffect(()=>{
-    async function fetchRecommendations(){
-      if(!mongoUserId) return;
-      
-      SetRecommendationsLoading(true)
+  useEffect(() => {
+    async function fetchRecommendations() {
+      if (!mongoUserId) return;
 
-      try{
+      setRecommendationsLoading(true);
+
+      try {
         const res = await fetch("/api/recommendations/users");
-        if(!res.ok) throw new Error("Failed to fetch recommendations");
+        if (!res.ok) throw new Error("Failed to fetch recommendations");
         const data = await res.json();
-        if(!data) throw new Error("Failed to extract recommendation data");
+        if (!data) throw new Error("Failed to extract recommendation data");
 
-        const recommendationsList : RecommendationItem[] = Array.isArray(data) ? data : data.data || [];
-        SetRecommendations(recommendationsList);
-      }
-      catch{
-        SetRecommendations([]);
-      }
-      finally{
-        SetRecommendationsLoading(false);
+        const recommendationsList: RecommendationItem[] = Array.isArray(data) ? data : data.data || [];
+        setRecommendations(recommendationsList);
+      } catch {
+        setRecommendations([]);
+      } finally {
+        setRecommendationsLoading(false);
       }
     }
 
     fetchRecommendations();
-  },[mongoUserId]);
-
+  }, [mongoUserId]);
 
   const refreshConnections = () => {
     fetchConnectionData();
@@ -357,49 +344,31 @@ export default function ConnectionsPage() {
       hasReceivedRequest: receivedRequests.includes(user._id),
     }));
 
-    const filteredRecommendationUsers = recommendations
+  const filteredRecommendationUsers = recommendations
     .filter((item) => item.user._id !== mongoUserId)
     .filter((item) => !sentRequests.includes(item.user._id))
     .filter((item) => !receivedRequests.includes(item.user._id))
     .filter((item) => !following.some((f) => f._id === item.user._id))
     .map((item) => ({
       ...item,
-      user : {
-      ...item.user,
-      isFollowedByUser: following.some((f) => f._id === item.user._id),
-      hasSentRequest: sentRequests.includes(item.user._id),
-      hasReceivedRequest: receivedRequests.includes(item.user._id),
-      }
-    }))
+      user: {
+        ...item.user,
+        isFollowedByUser: following.some((f) => f._id === item.user._id),
+        hasSentRequest: sentRequests.includes(item.user._id),
+        hasReceivedRequest: receivedRequests.includes(item.user._id),
+      },
+    }));
 
   const followingTabUsers = [
-  ...following,
-  ...sentRequestUsers.filter(
-    (reqUser) => !following.some((followUser) => followUser._id === reqUser._id)
-  ),
-];
-
-const loadGraph = async() => {
-  if(!mongoUserId) return;
-
-  setGraphLoading(true);
-  try{
-    const res = await fetch(`/api/graph?userId=${mongoUserId}`);
-    if(!res.ok) console.log("Failed to fetch graph data");
-    const data = await res.json();
-    setGraphData(data);
-  }catch(error){
-    setGraphData(null);
-    console.error("Error loading graph data:", error);
-  }
-  finally{
-    setGraphLoading(false);
-  }
-}
+    ...following,
+    ...sentRequestUsers.filter(
+      (reqUser) => !following.some((followUser) => followUser._id === reqUser._id)
+    ),
+  ];
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-cyan-100 to-blue-100 flex justify-center py-10 px-5 rounded-md">
-      <section className="max-w-6xl w-full">
+    <main className="min-h-screen flex justify-center py-10 px-5 rounded-md">
+      <section className="max-w-5xl w-full">
         {profileLoading ? (
           <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow flex justify-center">
             <div
@@ -410,154 +379,184 @@ const loadGraph = async() => {
           </div>
         ) : (
           profileUser && (
-            <UserProfileCard
-              mongoId={mongoUserId || ""}
-              username={profileUser.username}
-              firstName={profileUser.firstName}
-              lastName={profileUser.lastName}
-              profilePhoto={profileUser.profilePhoto}
-              bio={profileUser.bio}
-              interests={profileUser.interests}
-              followersCount={followers.length}
-              followingCount={following.length + sentRequests.length}
-              showActions={false}
-            />
-
+            <div className="w-full max-w-2xl mx-auto rounded-2xl shadow-lg mb-4">
+              <UserProfileCard
+                mongoId={mongoUserId || ""}
+                username={profileUser.username}
+                firstName={profileUser.firstName}
+                lastName={profileUser.lastName}
+                profilePhoto={profileUser.profilePhoto}
+                bio={profileUser.bio}
+                interests={profileUser.interests}
+                followersCount={followers.length}
+                followingCount={following.length + sentRequests.length}
+                showActions={false}
+              />
+            </div>
           )
         )}
 
-        <Tabs defaultValue="followers" className="mt-8 bg-white rounded shadow">
-          <TabsList className="border-b border-cyan-300 flex justify-center gap-8 px-8">
+        <Tabs
+          defaultValue="followers"
+          className="w-full bg-white rounded-b-2xl shadow-md border border-gray-200 overflow-hidden"
+        >
+          <TabsList className="w-full grid grid-cols-4 bg-white border-b border-gray-200 h-11 rounded-none">
             <TabsTrigger
               value="followers"
-              className="flex items-center space-x-2 font-semibold text-lg px-4 py-3 data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-700"
+              className="
+                h-10
+                rounded-none
+                border-b-2
+                border-transparent
+                bg-transparent
+                px-3
+                text-sm
+                font-semibold
+                flex
+                items-center
+                justify-center
+                gap-2
+                transition-all
+                data-[state=active]:bg-transparent
+                data-[state=active]:shadow-none
+                data-[state=active]:border-cyan-500
+                data-[state=active]:text-cyan-600
+              "
             >
               <Users size={20} /> <span>Followers ({followers.length})</span>
             </TabsTrigger>
 
             <TabsTrigger
               value="following"
-              className="flex items-center space-x-2 font-semibold text-lg px-4 py-3 data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-700"
+              className="
+                h-10
+                rounded-none
+                border-b-2
+                border-transparent
+                bg-transparent
+                px-3
+                text-sm
+                font-semibold
+                flex
+                items-center
+                justify-center
+                gap-2
+                transition-all
+                data-[state=active]:bg-transparent
+                data-[state=active]:shadow-none
+                data-[state=active]:border-cyan-500
+                data-[state=active]:text-cyan-600
+              "
             >
               <UserCheck size={20} /> <span>Following ({following.length + sentRequests.length})</span>
             </TabsTrigger>
 
             <TabsTrigger
               value="discover"
-              className="flex items-center space-x-2 font-semibold text-lg px-4 py-3 data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-gray-400"
+              className="
+                h-10
+                rounded-none
+                border-b-2
+                border-transparent
+                bg-transparent
+                px-3
+                text-sm
+                font-semibold
+                flex
+                items-center
+                justify-center
+                gap-2
+                transition-all
+                data-[state=active]:bg-transparent
+                data-[state=active]:shadow-none
+                data-[state=active]:border-cyan-500
+                data-[state=active]:text-cyan-600
+              "
             >
               <Search size={20} /> <span>Discover</span>
             </TabsTrigger>
 
             <TabsTrigger
               value="requests"
-              className="flex items-center space-x-2 font-semibold text-lg px-4 py-3 data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-700"
+              className="
+                h-10
+                rounded-none
+                border-b-2
+                border-transparent
+                bg-transparent
+                px-3
+                text-sm
+                font-semibold
+                flex
+                items-center
+                justify-center
+                gap-2
+                transition-all
+                data-[state=active]:bg-transparent
+                data-[state=active]:shadow-none
+                data-[state=active]:border-cyan-500
+                data-[state=active]:text-cyan-600
+              "
             >
               <Users size={20} /> <span>Requests ({receivedRequests.length})</span>
             </TabsTrigger>
-
-              <button 
-              onClick = {() => {
-                setShowGraph(true);
-                loadGraph();
-              }}
-              className="ml-auto mr-4 p-2 rounded-lg bg-cyan-600 text-white/80 hover:text-white/40 hover:bg-cyan-700 transition-colors duration-200 flex items-center space-x-1 data-[state=active]:bg-cyan-700 data-[state=active]:text-white"
-            >
-              Visualize Connections
-            </button>
-
           </TabsList>
 
-          <TabsContent
-            value="followers"
-            className="p-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
-          >
+          <TabsContent value="followers" className="p-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {connectionsLoading ? (
-              [...Array(placeholderCount)].map((_, i) => (
-                <Skeleton key={i} className="h-48 rounded-lg" />
-              ))
+              [...Array(placeholderCount)].map((_, i) => <Skeleton key={i} className="h-48 rounded-lg" />)
             ) : followers.length === 0 ? (
-              <p className="text-center col-span-full text-gray-500 py-16">
-                No followers yet.
-              </p>
+              <p className="text-center col-span-full text-gray-500 py-16">No followers yet.</p>
             ) : (
-              followers.map((user) => (
-                <UserCard key={user._id} user={user} refresh={refreshConnections} />
-              ))
+              followers.map((user) => <UserCard key={user._id} user={user} refresh={refreshConnections} />)
             )}
           </TabsContent>
 
-          <TabsContent
-            value="following"
-            className="p-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
-          >
+          <TabsContent value="following" className="p-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {connectionsLoading ? (
-              [...Array(placeholderCount)].map((_, i) => (
-                <Skeleton key={i} className="h-48 rounded-lg" />
-              ))
+              [...Array(placeholderCount)].map((_, i) => <Skeleton key={i} className="h-48 rounded-lg" />)
             ) : followingTabUsers.length === 0 ? (
-              <p className="text-center col-span-full text-gray-500 py-16">
-                You are not following anyone.
-              </p>
+              <p className="text-center col-span-full text-gray-500 py-16">You are not following anyone.</p>
             ) : (
-              followingTabUsers.map((user) => (
-                <UserCard key={user._id} user={user} refresh={refreshConnections} />
-              ))
+              followingTabUsers.map((user) => <UserCard key={user._id} user={user} refresh={refreshConnections} />)
             )}
           </TabsContent>
 
-
-          <TabsContent
-            value="discover"
-            className="p-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
-          >
-          {discoverLoading || recommendationsLoading ? (
-          [...Array(placeholderCount)].map((_, i) => (
-            <Skeleton key={i} className="h-56 rounded-lg" />
-          ))
+          <TabsContent value="discover" className="p-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {discoverLoading || recommendationsLoading ? (
+              [...Array(placeholderCount)].map((_, i) => <Skeleton key={i} className="h-56 rounded-lg" />)
             ) : filteredRecommendationUsers.length > 0 ? (
               filteredRecommendationUsers.map((item) => (
-            <div
-              key={item.user._id}
-              className="rounded-xl border border-cyan-100 bg-cyan-50/40 p-3 shadow-sm"
-            >
-            <div className="mb-3 flex flex-wrap gap-2">
-              {item.reasons.slice(0, 3).map((reason) => (
-              <span
-                key={reason}
-                className="rounded-full bg-cyan-100 text-cyan-700 text-xs font-medium px-3 py-1"
-              >
-                {reason}
-              </span>
-              ))}
-            </div>
+                <div
+                  key={item.user._id}
+                  className="rounded-xl border border-cyan-100 bg-cyan-50/40 p-3 shadow-sm"
+                >
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    {item.reasons.slice(0, 3).map((reason) => (
+                      <span
+                        key={reason}
+                        className="rounded-full bg-cyan-100 text-cyan-700 text-xs font-medium px-3 py-1"
+                      >
+                        {reason}
+                      </span>
+                    ))}
+                  </div>
 
-            <UserCard user={item.user} refresh={refreshConnections} />
-            </div>
-          ))
-      ) : filteredDiscoverUsers.length === 0 ? (
-          <p className="text-center col-span-full text-gray-500 py-16">
-            No users found to discover.
-          </p>
-          ) : (
-          filteredDiscoverUsers.map((user) => (
-            <UserCard key={user._id} user={user} refresh={refreshConnections} />
-            ))
-          )}
+                  <UserCard user={item.user} refresh={refreshConnections} />
+                </div>
+              ))
+            ) : filteredDiscoverUsers.length === 0 ? (
+              <p className="text-center col-span-full text-gray-500 py-16">No users found to discover.</p>
+            ) : (
+              filteredDiscoverUsers.map((user) => <UserCard key={user._id} user={user} refresh={refreshConnections} />)
+            )}
           </TabsContent>
 
-          <TabsContent
-            value="requests"
-            className="p-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
-          >
+          <TabsContent value="requests" className="p-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {connectionsLoading ? (
-              [...Array(placeholderCount)].map((_, i) => (
-                <Skeleton key={i} className="h-48 rounded-lg" />
-              ))
+              [...Array(placeholderCount)].map((_, i) => <Skeleton key={i} className="h-48 rounded-lg" />)
             ) : receivedRequestUsers.length === 0 ? (
-              <p className="text-center col-span-full text-gray-500 py-16">
-                No pending follow requests.
-              </p>
+              <p className="text-center col-span-full text-gray-500 py-16">No pending follow requests.</p>
             ) : (
               receivedRequestUsers.map((user) => (
                 <UserCard
@@ -575,51 +574,6 @@ const loadGraph = async() => {
           </TabsContent>
         </Tabs>
       </section>
-
-      {showGraph && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center">
-
-    {/* BACKDROP */}
-    <div
-      className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-      onClick={() => setShowGraph(false)}
-    />
-
-    {/* MODAL */}
-    <div className="relative z-50 w-[90%] max-w-5xl">
-
-      <div className="bg-black rounded-xl p-4 shadow-2xl">
-
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-3 text-white">
-          <h2 className="text-lg font-semibold">Connection Graph 🌐</h2>
-          <button
-            onClick={() => setShowGraph(false)}
-            className="text-gray-300 hover:text-white"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* CONTENT */}
-        {graphLoading ? (
-          <div className="h-[500px] flex items-center justify-center text-white">
-            Loading graph...
-          </div>
-        ) : graphData ? (
-          <ConnectionGraph data={graphData} />
-        ) : (
-          <div className="h-[500px] flex items-center justify-center text-white">
-            Failed to load graph
-          </div>
-        )}
-      </div>
-
-    </div>
-  </div>
-)}
-
     </main>
   );
 }
-

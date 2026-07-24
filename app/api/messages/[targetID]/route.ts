@@ -5,6 +5,8 @@ import { User } from "@/models/user.model";
 import { getAuth } from "@/lib/auth/getAuth";
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
+import { validate } from "@/lib/validation";
+import { SendMessageSchema } from "@/lib/validators";
 
 /* ===========================
    GET MESSAGES
@@ -91,6 +93,7 @@ export async function GET(
 /* ===========================
    SEND MESSAGE
 =========================== */
+
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ targetID: string }> }
@@ -122,9 +125,16 @@ export async function POST(
     }
 
     const body = await req.json();
-    const text = body?.text?.trim();
 
-    if (!text && !body.post) {
+    const validated = validate(SendMessageSchema, body);
+
+    if (!validated.success) {
+      return validated.response;
+    }
+
+    const { text, post } = validated.data;
+
+    if (!text && !post) {
       return NextResponse.json(
         { error: "Message or post required" },
         { status: 400 }
@@ -144,7 +154,7 @@ export async function POST(
       iv: encrypted?.iv,
       authTag: encrypted?.authTag,
       keyVersion: encrypted?.keyVersion,
-      post: body.post || null,
+      post: post ?? null,
     });
 
     return NextResponse.json(

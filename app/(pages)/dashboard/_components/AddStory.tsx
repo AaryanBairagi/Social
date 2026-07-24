@@ -11,11 +11,18 @@ export default function AddStory({ userId, onUpload }: any) {
       const formData = new FormData();
       formData.append("file", file);
 
+      // const uploadRes = await axios.post("/api/upload", formData);
+      // console.log(uploadRes.data);
+      // await axios.post("/api/stories", {
+      //   mediaUrl: uploadRes.data.secure_url,
+      //   user: userId,
+      // });
+
       const uploadRes = await axios.post("/api/upload", formData);
-      console.log(uploadRes.data);
+
       await axios.post("/api/stories", {
-        mediaUrl: uploadRes.data.secure_url,
-        user: userId,
+        mediaUrl: uploadRes.data.url,
+        fileType: file.type.startsWith("video") ? "video" : "image",
       });
 
       // refresh UI

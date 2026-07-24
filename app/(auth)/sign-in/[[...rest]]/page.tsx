@@ -57,7 +57,7 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#e0f2fe] via-[#fff] to-[#a5f3fc] p-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#e0f2fe] p-8">
 
       <div
         className="
@@ -89,7 +89,7 @@ export default function SignInPage() {
 
           <div className="px-5 py-2 rounded-2xl bg-white/80 backdrop-blur-3xl">
 
-            <h1 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-cyan-500 to-cyan-700 text-transparent bg-clip-text text-center">
+            <h1 className="text-3xl md:text-4xl font-extrabold bg-cyan-500 text-transparent bg-clip-text text-center">
               Welcome Back to Social
             </h1>
 
@@ -127,35 +127,6 @@ export default function SignInPage() {
               className="bg-white rounded-2xl p-8 shadow-xl"
             >
 
-              <div className="flex gap-3 mb-6">
-
-                <button
-                  type="button"
-                  className="flex-1 border rounded-lg py-3 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
-                >
-                  GitHub
-                </button>
-
-                <button
-                  type="button"
-                  className="flex-1 border rounded-lg py-3 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
-                >
-                  Google
-                </button>
-
-              </div>
-
-              <div className="flex items-center gap-4 mb-6">
-
-                <div className="flex-1 h-px bg-gray-300" />
-
-                <span className="text-sm text-gray-500">
-                  or
-                </span>
-
-                <div className="flex-1 h-px bg-gray-300" />
-
-              </div>
 
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email address
@@ -191,7 +162,7 @@ export default function SignInPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-6 w-full rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-700 py-3 font-semibold text-white shadow-md transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70"
+                className="mt-6 w-full rounded-lg bg-cyan-600 hover:bg-cyan-700  py-3 font-semibold text-white shadow-md transition-all disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {loading ? (
                   <div className="flex items-center justify-center gap-2">

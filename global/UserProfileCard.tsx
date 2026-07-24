@@ -17,6 +17,7 @@ export function UserProfileCard({
   hasSentRequest = false,
   hasReceivedRequest = false,
   showActions,
+  isOwnProfile,
   onFollowChange,
 }: {
   profilePhoto?: string;
@@ -32,6 +33,7 @@ export function UserProfileCard({
   hasSentRequest?: boolean;
   hasReceivedRequest?: boolean;
   showActions?: boolean;
+  isOwnProfile?: boolean;
   onFollowChange?: (type: "follow" | "unfollow" | "accept") => void;
 }) {
   const [followState, setFollowState] = useState({
@@ -153,17 +155,25 @@ export function UserProfileCard({
     }
   };
 
+
+
   return (
-    <div
-      className="
-        flex items-center bg-white/90 rounded-xl p-8 mb-10 max-w-3xl mx-auto w-full
+  <div
+    className="
+        flex items-center
+        w-full
+        bg-white/90
+        rounded-xl
+        p-8
         shadow-[0_0_24px_6px_rgba(22,210,255,0.75)]
-        border border-cyan-400
-        transition-shadow duration-300
+        border
+        border-cyan-400
+        transition-all
+        duration-300
         hover:shadow-[0_0_30px_10px_rgba(22,210,255,1)]
         select-none
       "
-    >
+  >
       <img
         src={profilePhoto || "/User-Prof.png"}
         alt={username}
@@ -183,7 +193,7 @@ export function UserProfileCard({
             {bio && <div className="mt-1 text-gray-700">{bio}</div>}
           </div>
 
-          {showActions && <div className="ml-4 self-start">{renderButton()}</div>}
+          {showActions && !isOwnProfile && (<div className="ml-4 self-start">{renderButton()}</div>) }
         </div>
 
         {interests && interests.length > 0 && (

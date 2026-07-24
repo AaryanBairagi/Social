@@ -17,6 +17,8 @@ type PostDialogProps = {
   mode: "create" | "edit";
   initialContent?: string;
   initialImageUrl?: string[];
+  initialFileNames?: string[];
+  initialFileTypes?: string[];
   postIdToEdit?: string;
   modeType?: "post" | "event";
   onSave?: () => void;
@@ -32,6 +34,8 @@ const PostDialog = ({
   mode,
   initialContent = "",
   initialImageUrl = [],
+  initialFileNames = [],
+  initialFileTypes = [],
   postIdToEdit,
   modeType,
   onSave,
@@ -46,14 +50,20 @@ const PostDialog = ({
   const [error, setError] = useState<string | null>(null);
   const [postType, setPostType] = useState<"post" | "event">(modeType || "post");
   const [eventDate, setEventDate] = useState("");
-  const [fileNames, setFileNames] = useState<string[]>([]);
+  const [fileNames, setFileNames] = useState(initialFileNames);
+  const [fileTypes, setFileTypes] = useState(initialFileTypes);
 
   useEffect(() => {
-    setContent(initialContent);
-    setImageUrls(initialImageUrl);
-    setFiles([]);
-    setError(null);
-  }, [initialContent,open]);
+  if (!open) return;
+
+  setContent(initialContent);
+  setImageUrls(initialImageUrl);
+  setFileNames(initialFileNames);
+  setFileTypes(initialFileTypes);
+  setFiles([]);
+  setError(null);
+
+  }, [open]);
 
   useEffect(() => {
   if (mode === "edit" && initialContent) {
@@ -96,7 +106,7 @@ const PostDialog = ({
     try {
       let uploadedImageUrls = imageUrls;
       let finalFileNames = [...fileNames];
-      let types : string[] = [];
+      let types = [...fileTypes];
 
       if (files.length > 0) {
         // Upload all files in parallel
@@ -109,8 +119,7 @@ const PostDialog = ({
         const urls = uploads.map(f => f.url);
         const names = uploads.map(f => f.name);
         types = uploads.map(f => f.type);
-
-
+        setFileTypes(types);
         finalFileNames = [...finalFileNames , ...names]
         uploadedImageUrls = [...uploadedImageUrls, ...urls];
         setFileNames(finalFileNames);
@@ -129,7 +138,7 @@ const PostDialog = ({
       };
 
       if (postType === "event" && !eventDate) {
-        alert("Please select event date & time");
+        toast.error("Please select event date & time");
         return;
       }
 
@@ -152,7 +161,6 @@ const PostDialog = ({
       }
 
       if (res.ok) {
-        // alert(mode === "create" ? "Posted successfully" : "Edited successfully");
         toast.success(
         postType === "event" ? 
             mode === "edit" ? "Event updated" : "Event scheduled" 
@@ -283,7 +291,7 @@ const PostDialog = ({
               className="w-24 h-24 object-cover rounded"
             />
 
-            {/* ❌ REMOVE BUTTON */}
+            {/*  REMOVE BUTTON */}
             <button
               type="button"
               onClick={() =>

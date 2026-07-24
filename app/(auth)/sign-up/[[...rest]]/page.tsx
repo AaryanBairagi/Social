@@ -70,7 +70,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e0f2fe] via-[#fff] to-[#a5f3fc] p-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#e0f2fe] p-8">
 
       <div
         className="
@@ -102,7 +102,7 @@ export default function SignUpPage() {
 
           <div className="px-5 py-2 rounded-2xl bg-white/80 backdrop-blur-3xl">
 
-            <h1 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-cyan-500 to-cyan-700 text-transparent bg-clip-text text-center">
+            <h1 className="text-3xl md:text-4xl font-extrabold bg-cyan-500 text-transparent bg-clip-text text-center">
               Sign Up for Social
             </h1>
 
@@ -223,7 +223,7 @@ export default function SignUpPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-6 w-full rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-700 py-3 font-semibold text-white shadow-md transition-all hover:scale-[1.02] disabled:opacity-70"
+                className="mt-6 w-full rounded-lg bg-cyan-600 hover:bg-cyan-700  py-3 font-semibold text-white shadow-md transition-all disabled:opacity-70"
               >
                 {loading ? "Creating Account..." : "Continue"}
               </button>

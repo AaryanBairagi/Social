@@ -8,6 +8,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 import { Activity, Bookmark, Archive, Clock, Shield, ChevronRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 type UserProfile = {
   _id?: string;
@@ -191,7 +192,8 @@ export default function UserProfilePage() {
     let profilePhoto = profile.profilePhoto;
 
     if (imageFile) {
-      profilePhoto = await uploadFileToCloudinary(imageFile);
+      const uploaded = await uploadFileToCloudinary(imageFile);
+      profilePhoto = uploaded.url;
     }
 
     const updateData = {
@@ -219,10 +221,10 @@ export default function UserProfilePage() {
     setPreview(updated.profilePhoto || "");
     setImageFile(null);
 
-    alert("Profile saved successfully!");
+    toast.success("Profile saved successfully!");
   } catch (err: any) {
     console.error(err);
-    alert(err.message || "Failed to save profile.");
+    toast.error("Failed to save profile.");
   } finally {
     setSaving(false);
   }
@@ -334,7 +336,7 @@ export default function UserProfilePage() {
               <label className="block mb-1 font-medium">Username</label>
               <input
                 type="text"
-                name="userId"
+                name="username"
                 placeholder="Unique username"
                 value={profile.username || ""}
                 onChange={handleChange}
@@ -524,7 +526,7 @@ export default function UserProfilePage() {
       </div>
       </form>
 
-      {openSettings && (
+    {openSettings && (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
 
     {/* BACKDROP */}

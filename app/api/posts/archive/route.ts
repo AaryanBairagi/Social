@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { Post } from "@/models/post.model";
 import { connectDB } from "@/lib/db";
 import { getAuth } from "@/lib/auth/getAuth";
+import { validate } from "@/lib/validation";
+import { ArchivePostSchema } from "@/lib/validators";
 
 export async function GET(req: NextRequest) {
   try {
@@ -47,7 +49,14 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const { postId, unarchive } = await req.json();
+    const body = await req.json();
+
+    const validated = validate(ArchivePostSchema , body);
+    if(!validated.success){
+      return validated.response;
+    }
+
+    const { postId, unarchive } = validated.data;
 
     if (!postId) {
       return Response.json(

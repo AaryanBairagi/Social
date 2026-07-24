@@ -1,6 +1,8 @@
 import { comparePasswords } from "@/lib/auth/password";
 import { signAccessToken, signRefreshToken } from "@/lib/auth/tokens";
 import { connectDB } from "@/lib/db";
+import { validate } from "@/lib/validation";
+import { LoginSchema } from "@/lib/validators";
 import { User } from "@/models/user.model";
 import { NextRequest , NextResponse } from "next/server";
 
@@ -9,7 +11,13 @@ export async function POST(req : NextRequest){
         await connectDB();
 
         const body = await req.json();
-        const { email , password } = body;
+        
+        const validated = validate(LoginSchema , body);
+        if(!validated.success){
+            return validated.response;
+        }
+
+        const { email , password } = validated.data;
 
         if(!email || !password){
             return NextResponse.json({ success : false , message : "All fields are required" }, { status : 400 });

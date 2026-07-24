@@ -5,6 +5,9 @@ import { User } from "@/models/user.model";
 import { Connection } from "@/models/connection.model";
 import { checkLimiter } from "@/lib/rate/checkLimiter";
 import { RATE_LIMITS } from "@/lib/rate/constants";
+import { validate } from "@/lib/validation";
+import { CreateStorySchema } from "@/lib/validators";
+import { getAuth } from "@/lib/auth/getAuth";
 
 // GET STORIES
 export async function GET(req: NextRequest) {
@@ -60,22 +63,26 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { user, mediaUrl, fileType } = body;
 
-    if (!user || !mediaUrl) {
-      return NextResponse.json(
-        { error: "User and mediaUrl required" },
-        { status: 400 }
-      );
+    const { userId } = await getAuth(req);
+    if(!userId){
+      return NextResponse.json({ message : "User unauthorized" },{ status : 401 });
     }
 
-    checkLimiter(user, "STORY", RATE_LIMITS.POST);
+    const validated = validate(CreateStorySchema , body);
+    if(!validated.success){
+      return validated.response;
+    }
+
+    const { mediaUrl, fileType } = validated.data;
+
+    checkLimiter(userId, "STORY", RATE_LIMITS.POST);
 
     // Only one story per user
-    await Story.deleteOne({ user });
+    await Story.deleteOne({ user : userId });
 
     const story = new Story({
-      user,
+      user: userId,
       mediaUrl,
       fileType: fileType || "image",
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),

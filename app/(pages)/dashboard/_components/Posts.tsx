@@ -243,7 +243,7 @@ export default function Posts({ currentUserId, userName , userProfileImageUrl , 
         toast.error("Failed to delete post");
       }
     } catch (error) {
-      alert("Error deleting post");
+      toast.error("Error deleting post");
       console.error(error);
     }
   };
@@ -435,7 +435,7 @@ export default function Posts({ currentUserId, userName , userProfileImageUrl , 
 
   return (
     <>
-      <div className="space-y-6 max-w-3xl mx-auto px-4 mt-2">
+      <div className="align-center space-y-6 w-2xl px-4 mt-2">
         { posts.map(post => {
           const isOwner = post.user?._id && currentUserId
             ? post.user._id.toString() === currentUserId.toString()
@@ -449,13 +449,8 @@ export default function Posts({ currentUserId, userName , userProfileImageUrl , 
           return (
             <div
               key={post._id}
-              className="relative bg-white rounded-xl shadow-md border border-gray-200 p-6 transition"
-              style={{
-                boxShadow: "0 1.5px 16px 0 rgba(6,182,212,0.12),0 2.5px 8px 0 rgba(6,182,212,0.04)",
-                transition: "box-shadow 0.25s",
-              }}
-              onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 0 24px 4px #22d3ee,0 8px 24px 0 rgba(6,182,212,0.13)")}
-              onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 1.5px 16px 0 rgba(6,182,212,0.12),0 2.5px 8px 0 rgba(6,182,212,0.04)")}
+              className="relative bg-white rounded-xl shadow-md border border-gray-200 p-6 transition hover:drop-shadow-lg"
+   
             >
               
             {/*  EVENT BADGE */}
@@ -891,14 +886,21 @@ export default function Posts({ currentUserId, userName , userProfileImageUrl , 
         open={dialogOpen}
         setOpen={open => {
           if (!open) setPostToEdit(null);
-          setDialogOpen(open);
-        }}
+            setDialogOpen(open);
+          }}
         src={postToEdit?.user?.profilePhoto || userProfileImageUrl}
-        name={postToEdit ? `${postToEdit.user.firstName} ${postToEdit.user.lastName}` : userName || "You"}
+        name={
+          postToEdit
+              ? `${postToEdit.user.firstName} ${postToEdit.user.lastName}`
+              : userName || "You"
+        }
         currentUserId={currentUserId}
         mode={postToEdit ? "edit" : "create"}
+
         initialContent={postToEdit?.description}
-        initialImageUrl={postToEdit?.imageUrls || []}
+        initialImageUrl={postToEdit?.imageUrls}
+        initialFileNames={postToEdit?.fileNames}
+        initialFileTypes={postToEdit?.fileTypes}
         postIdToEdit={postToEdit?._id ?? ""}
         onSave={() => fetchPosts()}
       />

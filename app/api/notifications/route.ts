@@ -4,6 +4,8 @@ import { User } from "@/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
 import "@/models/post.model";
 import { getAuth } from "@/lib/auth/getAuth";
+import { validate } from "@/lib/validation";
+import { MarkNotificationSchema } from "@/lib/validators/notification";
 
 export async function GET(req: NextRequest) {
   try {
@@ -70,12 +72,18 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    const { notificationId } = await req.json();
+    const body = await req.json();
 
+    const validated = validate(MarkNotificationSchema , body);
+    if(!validated.success){
+      return validated.response;
+    }
+
+    const { notificationId } = validated.data;
     const updated = await Notification.findOneAndUpdate(
       {
         _id: notificationId,
-        userId, // 🔥 SECURITY CHECK
+        user: userId, // SECURITY CHECK
       },
       { isRead: true },
       { new: true }

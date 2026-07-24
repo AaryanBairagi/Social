@@ -12,7 +12,6 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-
     await connectDB();
 
     const { userId } = await getAuth(req);
@@ -30,8 +29,7 @@ export async function POST(
       RATE_LIMITS.CONNECTION
     );
 
-    const { id: targetUserId } =
-      await context.params;
+    const { id: targetUserId } = await context.params;
 
     if (!targetUserId) {
       return NextResponse.json(
@@ -44,31 +42,35 @@ export async function POST(
       );
     }
 
-    const result =
-      await sendConnectionRequest(
-        userId,
-        targetUserId
+    // ✅ Prevent users from following themselves
+    if (userId === targetUserId) {
+      return NextResponse.json(
+        {
+          message: "You cannot follow yourself",
+        },
+        {
+          status: 400,
+        }
       );
+    }
+
+    const result = await sendConnectionRequest(
+      userId,
+      targetUserId
+    );
 
     if (
       result.status === 200 ||
       result.status === 201
     ) {
-
-      deleteCache(
-        `requests:${userId}`
-      );
-
-      deleteCache(
-        `requests:${targetUserId}`
-      );
+      deleteCache(`requests:${userId}`);
+      deleteCache(`requests:${targetUserId}`);
 
       await createNotification({
         userId: targetUserId,
         actorId: userId,
         type: "FOLLOW_REQUEST",
       });
-
     }
 
     return NextResponse.json(
@@ -80,14 +82,8 @@ export async function POST(
         status: result.status,
       }
     );
-
   } catch (error: any) {
-
-    if (
-      error.message?.includes(
-        "Too many requests"
-      )
-    ) {
+    if (error.message?.includes("Too many requests")) {
       return NextResponse.json(
         {
           error: "Please Try Again Later",
@@ -98,15 +94,11 @@ export async function POST(
       );
     }
 
-    console.error(
-      "Follow error:",
-      error
-    );
+    console.error("Follow error:", error);
 
     return NextResponse.json(
       {
-        message:
-          "Internal Server Error",
+        message: "Internal Server Error",
       },
       {
         status: 500,

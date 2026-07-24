@@ -134,7 +134,25 @@ export function SideBar() {
   ];
 
   return (
-    <Sidebar className="min-h-screen w-35 bg-white/20 border-r border-gray-200 shadow flex flex-col justify-between pt-[120px] pb-6 overflow-y-auto overflow-x-hidden">
+    // <Sidebar className="min-h-screen w-35 bg-white/20 border-r border-gray-200 shadow flex flex-col justify-between pt-[120px] pb-6 overflow-y-auto overflow-x-hidden">
+    <aside
+className="
+fixed
+left-0
+top-[120px]
+bottom-0
+w-40
+bg-white/10
+border-r
+border-gray-200
+shadow
+flex
+flex-col
+justify-between
+overflow-y-auto
+"
+>
+
       <SidebarContent>
         <SidebarMenu className="flex flex-col items-center gap-5 space-y-6">
           <TooltipProvider delayDuration={0}>
@@ -224,6 +242,6 @@ export function SideBar() {
           </TooltipProvider>
         )}
       </SidebarFooter>
-    </Sidebar>
+    </aside>
   );
 }

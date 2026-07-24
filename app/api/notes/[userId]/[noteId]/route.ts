@@ -2,6 +2,8 @@ import { connectDB } from "@/lib/db";
 import { Note } from "@/models/notes.model";
 import { getAuth } from "@/lib/auth/getAuth";
 import { NextRequest, NextResponse } from "next/server";
+import { validate } from "@/lib/validation";
+import { UpdateNoteSchema } from "@/lib/validators/note";
 
 export async function PATCH(
   req: NextRequest,
@@ -19,7 +21,14 @@ export async function PATCH(
       );
     }
 
-    const data = await req.json();
+    const body = await req.json();
+
+    const validated = validate(UpdateNoteSchema , body);
+    if(!validated.success){
+      return validated.response;
+    }
+
+    const data = validated.data;
 
     // Update note
     const updatedNote = await Note.findOneAndUpdate(

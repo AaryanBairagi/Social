@@ -127,11 +127,11 @@ const openChat = async (u: ChatUser) => {
   };
 
   return (
-    <main className="max-h-screen w-full bg-gradient-to-b bg-white/60 border border-white/30 rounded-xl flex flex-col">
+    <main className="max-h-screen w-full bg-white/60 border border-white/30 rounded-xl flex flex-col">
       <SectionHeader title="Chats" icon={<MessageCircle />} />
-      <section className="flex max-w-6xl w-full mx-auto rounded-xl shadow-lg mt-2 mb-15 bg-white/10 border border-gray-200 overflow-hidden h-[75vh]">
+      <section className="flex max-w-6xl w-full mx-auto rounded-xl shadow-lg mt-2 mb-15 bg-gray-600/10 border border-gray-200 overflow-hidden h-[75vh]">
         {/* Sidebar */}
-        <aside className="w-72 border-r border-cyan-100 py-6 pr-4 bg-gradient-to-b from-white/50 to-cyan-100">          
+        <aside className="w-72 border-r border-cyan-100 py-6 pr-4 bg-white/10">          
           <ul className="overflow-y-auto max-h-[63vh]">
             {connections.map((u) => (
               <li
@@ -160,7 +160,7 @@ const openChat = async (u: ChatUser) => {
               </li>
             ))}
             {!connections.length && (
-              <li className="px-4 py-3 text-cyan-400 font-bold text-xs">No connections yet.</li>
+              <li className="px-4 py-3 text-center text-black/80 font-bold text-xs">No connections yet.</li>
             )}
           </ul>
         </aside>
@@ -169,7 +169,7 @@ const openChat = async (u: ChatUser) => {
           {activeChat ? (
             <ChatWindow currentUserId={mongoUserId} receiver={activeChat} sharedPost={sharedData} />
           ) : (
-            <div className="flex flex-1 items-center justify-center bg-zinc-800 text-cyan-400 font-bold text-lg">
+            <div className="flex flex-1 items-center justify-center border-gray-100 bg-zinc-800 text-cyan-400/50 font-bold text-lg">
               <Lock/> Select a chat on the left to start messaging
             </div>
           )}

@@ -1,4 +1,6 @@
 import { connectDB } from "@/lib/db";
+import { validate } from "@/lib/validation";
+import { CreateContactSchema } from "@/lib/validators/contact";
 import { Contact } from "@/models/contact.model";
 import { NextRequest , NextResponse } from "next/server";
 
@@ -6,8 +8,15 @@ export async function POST(req:NextRequest){
     try{
     await connectDB();
 
-    const data = await req.json();
-    const { name , subject , email , message } = data;
+    const body = await req.json();
+
+    const validated = validate(CreateContactSchema , body);
+    if(!validated.success){
+        return validated.response;
+    }
+
+    const { name , subject , email , message } = validated.data;
+    
     if(!name || !message || !email || !subject) return NextResponse.json({message:'All fields are required'},{status:400});
     
     const contactEntry = new Contact({name,email,subject,message});

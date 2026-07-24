@@ -5,6 +5,8 @@ import { User } from "@/models/user.model";
 import { Connection } from "@/models/connection.model";
 import { checkLimiter } from "@/lib/rate/checkLimiter";
 import { RATE_LIMITS } from "@/lib/rate/constants";
+import { CreatePostSchema } from "@/lib/validators";
+import { validate } from "@/lib/validation";
 
 export async function GET(req: NextRequest) {
   try {
@@ -61,7 +63,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   await connectDB();
   const body = await req.json();
-  const { description, user, imageUrls, fileNames, type, eventDate , fileTypes } = body;
+
+  const validated = validate(CreatePostSchema , body);
+  if(!validated.success){
+    return validated.response;
+  }
+
+  const { description, user, imageUrls, fileNames, type, eventDate , fileTypes } = validated.data;
 
   if (!description || !user) {
     return NextResponse.json(
