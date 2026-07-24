@@ -84,17 +84,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+  try {
+    // Stop the refresh timer immediately
+    if (refreshIntervalRef.current) {
+      clearInterval(refreshIntervalRef.current);
+      refreshIntervalRef.current = null;
+    }
+
     await fetch("/api/auth/logout", {
       method: "POST",
       credentials: "include",
+      cache: "no-store",
     });
 
     setUser(null);
-  };
-
-  useEffect(() => {
-    refreshUser();
-  }, []);
+    setLoading(false);
+  } catch (err) {
+    console.error("Logout failed:", err);
+  }};
 
   // While a session is active, proactively refresh the access token every
   // 10 minutes so it never actually gets a chance to expire mid-session.

@@ -23,9 +23,6 @@ export default function DashboardLayout({
           p-8 mx-auto w-full
         "
       >
-        {/* <div className="mx-auto max-w-5xl">
-          
-        </div> */}
 
         {children}
       </main>

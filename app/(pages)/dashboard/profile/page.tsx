@@ -491,7 +491,7 @@ export default function UserProfilePage() {
             variant="outline"
             onClick={async () => {
               await logout();
-              router.push("/login");
+              window.location.replace("/sign-in");
             }}
             className="border-black/20 bg-red-600 px-6 py-2 shadow hover:shadow-cyan-200 text-white/90 hover:bg-red-700 hover:text-white transition-colors duration-300 font-semibold"
           >

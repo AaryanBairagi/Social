@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { UserProfileCard } from "../../../global/UserProfileCard";
-import PostsComponent from "../../../global/PostsComponent";
 import { useParams, useRouter } from "next/navigation";
+
 import Navbar from "@/global/Navbar";
 import { SideBar } from "@/global/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { UserProfileCard } from "@/global/UserProfileCard";
+import PostsComponent from "@/global/PostsComponent";
+
 import { Lock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-
 
 type Post = {
   _id: string;
@@ -32,6 +33,7 @@ type ProfileData = {
   isRequestPending: boolean;
   isRequestSent: boolean;
   recentPosts?: Post[];
+
   isFollowedByUser?: boolean;
   hasSentRequest?: boolean;
   hasReceivedRequest?: boolean;
@@ -40,20 +42,33 @@ type ProfileData = {
 export default function UserProfileView() {
   const params = useParams();
   const router = useRouter();
+
   const { user } = useAuth();
 
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
+
   const [posts, setPosts] = useState<Post[]>([]);
+
   const [loadingProfile, setLoadingProfile] = useState(true);
+
   const [loadingPosts, setLoadingPosts] = useState(true);
+
+  // -----------------------------
+  // Fetch Profile
+  // -----------------------------
 
   useEffect(() => {
     async function fetchProfile() {
-      setLoadingProfile(true);
-
       try {
-        const res = await fetch(`/api/profile/${params?.userId}`);
-        if (!res.ok) throw new Error("Failed to fetch profile");
+        setLoadingProfile(true);
+
+        const res = await fetch(`/api/profile/${params?.userId}`, {
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch profile");
+        }
 
         const data = await res.json();
 
@@ -67,6 +82,7 @@ export default function UserProfileView() {
         setPosts(data.recentPosts || []);
       } catch (err) {
         console.error("Profile fetch error:", err);
+
         setProfileData(null);
         setPosts([]);
       } finally {
@@ -80,141 +96,262 @@ export default function UserProfileView() {
     }
   }, [params?.userId]);
 
-  useEffect(() => {
-  if (!profileData || !user) return;
+  // -----------------------------
+  // Redirect if viewing yourself
+  // -----------------------------
 
-  if (profileData.mongoId === user._id) {
-    router.replace("/dashboard/connections");
-  }
-}, [profileData, user, router]);
+  useEffect(() => {
+    if (!profileData || !user) return;
+
+    if (profileData.mongoId === user._id) {
+      router.replace("/dashboard/connections");
+    }
+  }, [profileData, user, router]);
+
+  // -----------------------------
+  // Loading
+  // -----------------------------
 
   if (loadingProfile) {
-    return (           
-      <div className="flex justify-center gap-4 items-center py-10">
-        <p className="font-semibold text-cyan-600 text-lg">
-          Loading profile, please wait...
-        </p>
-        <svg className="animate-spin h-10 w-10 text-cyan-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-        </svg>
+    return (
+      <div className="flex h-screen items-center justify-center bg-cyan-50">
+        <div className="flex items-center gap-4 rounded-xl bg-white px-8 py-5 shadow-lg">
+          <svg
+            className="h-8 w-8 animate-spin text-cyan-600"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth={4}
+            />
+
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v8H4z"
+            />
+          </svg>
+
+          <span className="font-medium text-gray-700">
+            Loading profile...
+          </span>
+        </div>
       </div>
     );
   }
+
+  // -----------------------------
+  // Not Found
+  // -----------------------------
 
   if (!profileData) {
     return (
-      <div className="flex justify-center items-center h-screen text-gray-700">
-        Profile not found.
+      <div className="flex h-screen items-center justify-center bg-cyan-50">
+        <div className="rounded-xl bg-white px-10 py-8 shadow-lg">
+          <h2 className="text-2xl font-semibold text-gray-700">
+            Profile not found
+          </h2>
+        </div>
       </div>
     );
   }
-
   return (
-    <>
-      <Navbar />
+  <>
+    <Navbar />
 
-      <SidebarProvider>
-        <div className="flex min-h-screen bg-gradient-to-br from-cyan-50 to-blue-100">
-          <SideBar />
+    <SidebarProvider defaultOpen>
+      <div className="min-h-screen bg-[#e0f7fa] w-full">
 
-          {/* MAIN CONTENT */}
-          <div className="flex-1 flex flex-col mt-12 items-center px-6 md:px-10 py-10 w-full">
+        <SideBar />
 
-            {/* PROFILE CARD (CENTERED) */}
-            <div className="w-full max-w-3xl mt-12 mb-10">
-              <div className="bg-cyan-200 rounded-2xl shadow-lg p-6 sm:p-10 border border-cyan-100 backdrop-blur-sm hover:shadow-cyan-100/40 transition-all duration-300">
-                <UserProfileCard
-                  profilePhoto={profileData.profilePhoto}
-                  username={profileData.username}
-                  mongoId={profileData.mongoId}
-                  firstName={profileData.firstName}
-                  lastName={profileData.lastName}
-                  bio={profileData.bio}
-                  interests={profileData.interests}
-                  followersCount={profileData.followersCount}
-                  followingCount={profileData.followingCount}
-                  isFollowedByUser={profileData.isFollowedByUser}
-                  hasSentRequest={profileData.hasSentRequest}
-                  hasReceivedRequest={profileData.hasReceivedRequest}
-                  isOwnProfile={profileData.mongoId === user?._id}
-                  showActions={true}
-                  onFollowChange={(type) => {
-                    setProfileData((prev) => {
-                      if (!prev) return prev;
+        {/* ================= MAIN CONTENT ================= */}
+        <main
+          className="
+            ml-40
+            mt-[120px]
+            min-h-[calc(100vh-120px)]
+            p-8
+            max-w-full
+            flex justify-center
+          "
+        >
+          <div className="w-full max-w-5xl">
 
-                      if (type === "follow") {
-                        return {
-                          ...prev,
-                          hasSentRequest: true,
-                          hasReceivedRequest: false,
-                          isFollowedByUser: false,
-                        };
-                      }
+            {/* ================= PROFILE CARD ================= */}
 
-                      if (type === "accept") {
-                        return {
-                          ...prev,
-                          hasSentRequest: false,
-                          hasReceivedRequest: false,
-                        };
-                      }
+            <div className="w-full max-w-2xl mx-auto mb-8">
+            <UserProfileCard
+              profilePhoto={profileData.profilePhoto}
+              username={profileData.username}
+              mongoId={profileData.mongoId}
+              firstName={profileData.firstName}
+              lastName={profileData.lastName}
+              bio={profileData.bio}
+              interests={profileData.interests}
+              followersCount={profileData.followersCount}
+              followingCount={profileData.followingCount}
+              isFollowedByUser={profileData.isFollowedByUser}
+              hasSentRequest={profileData.hasSentRequest}
+              hasReceivedRequest={profileData.hasReceivedRequest}
+              isOwnProfile={profileData.mongoId === user?._id}
+              showActions={true}
+              onFollowChange={(type) => {
+                setProfileData((prev) => {
+                  if (!prev) return prev;
 
-                      if (type === "unfollow") {
-                        return {
-                          ...prev,
-                          followersCount: Math.max(0, prev.followersCount - 1),
-                          isFollowedByUser: false,
-                          hasSentRequest: false,
-                          hasReceivedRequest: false,
-                          isFollowing: false,
-                        };
-                      }
+                  switch (type) {
+                    case "follow":
+                      return {
+                        ...prev,
+                        hasSentRequest: true,
+                        hasReceivedRequest: false,
+                        isFollowedByUser: false,
+                      };
 
+                    case "accept":
+                      return {
+                        ...prev,
+                        hasReceivedRequest: false,
+                        hasSentRequest: false,
+                        isFollowedByUser: true,
+                        isFollowing: true,
+                        followersCount: prev.followersCount + 1,
+                      };
+
+                    case "unfollow":
+                      return {
+                        ...prev,
+                        isFollowedByUser: false,
+                        hasSentRequest: false,
+                        hasReceivedRequest: false,
+                        isFollowing: false,
+                        followersCount: Math.max(
+                          0,
+                          prev.followersCount - 1
+                        ),
+                      };
+
+                    default:
                       return prev;
-                    });
-                  }}
-                />
-              </div>
+                  }
+                });
+              }}
+            />
             </div>
+            {/* ================= POSTS CARD ================= */}
 
-            {/* POSTS SECTION (LIKE CONNECTIONS PAGE) */}
-            <div className="w-full max-w-6xl bg-white rounded-2xl shadow-md p-6 sm:p-8 border border-gray-200">
+            <div className="w-full max-w-5xl mx-auto">
 
-              {profileData.isFollowing ? (
-                <>
-                  {loadingPosts ? (
-                    <div className="flex flex-col items-center mt-10 space-y-3">
-                      <div className="animate-pulse h-6 w-32 bg-cyan-100 rounded"></div>
-                      <div className="animate-pulse h-20 w-full bg-cyan-50 rounded-lg"></div>
+            <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg">
+
+              {/* Header */}
+
+              <div className="flex items-center justify-between border-b border-gray-200 px-8 py-5">
+
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    Recent Posts
+                  </h2>
+
+                  <p className="mt-1 text-sm text-gray-500">
+                    Latest posts shared by {profileData.firstName}
+                  </p>
+                </div>
+
+              </div>
+
+              {/* Body */}
+
+              <div className="p-8">
+
+                {profileData.isFollowing ? (
+
+                  loadingPosts ? (
+
+                    <div className="flex justify-center py-16">
+
+                      <svg
+                        className="h-10 w-10 animate-spin text-cyan-600"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth={4}
+                        />
+
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8H4z"
+                        />
+                      </svg>
+
                     </div>
+
                   ) : posts.length > 0 ? (
-                    <>
-                      <h2 className="text-2xl font-semibold mb-6 text-cyan-800 text-center">
-                        Recent Posts
-                      </h2>
 
-                      {/* GRID LAYOUT POSTS */}
-                      <PostsComponent posts={posts} />
-                    </>
+                    <PostsComponent posts={posts} />
+
                   ) : (
-                    <p className="mt-6 text-center text-gray-500 italic">
-                      No recent posts yet.
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="mt-8 text-center text-gray-500 italic flex items-center justify-center gap-2">
-                  Follow this user to see their posts
-                  <Lock className="w-4 h-4" />
-                </p>
-              )}
 
+                    <div className="py-20 text-center">
+
+                      <h3 className="text-lg font-semibold text-gray-700">
+                        No Posts Yet
+                      </h3>
+
+                      <p className="mt-2 text-gray-500">
+                        This user hasn't shared anything yet.
+                      </p>
+
+                    </div>
+
+                  )
+
+                ) : (
+
+                  <div className="flex flex-col items-center justify-center py-20">
+
+                    <div className="mb-5 rounded-full bg-cyan-50 p-5">
+
+                      <Lock className="h-8 w-8 text-cyan-600" />
+
+                    </div>
+
+                    <h3 className="text-xl font-semibold text-gray-800">
+                      Posts are Private
+                    </h3>
+
+                    <p className="mt-3 max-w-md text-center text-gray-500">
+                      Follow this user to unlock their recent posts and activity.
+                    </p>
+
+                  </div>
+
+                )}
+
+              </div>
+
+            </section>
             </div>
 
           </div>
-        </div>
-      </SidebarProvider>
-    </>
-  );
+        </main>
+
+      </div>
+    </SidebarProvider>
+  </>
+);
 }

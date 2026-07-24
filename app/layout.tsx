@@ -32,8 +32,7 @@ export default function RootLayout({
 
           <AuthProvider>
           <UsageTracker />
-          {/* <div> {children} </div> */}
-          {children}
+            {children}
           <Toaster richColors position="top-right" />
           
           </AuthProvider>
